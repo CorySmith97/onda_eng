@@ -1,0 +1,10 @@
+CompileFlags:
+  Add:
+    - -xc
+    - -std=c99
+
+    - -I/opt/homebrew/include
+    - -I/usr/local/include
+    - -I/opt/homebrew/Cellar/glfw/3.4/include
+    - -I/usr/include
+
