@@ -1,4 +1,5 @@
 /*
+
 Public API for the Rendering Module.
 */
 
@@ -18,6 +19,7 @@ Public API for the Rendering Module.
 //
 typedef void* Render;
 
+typedef struct Camera Camera;
 typedef struct Mesh Mesh;
 typedef struct Material Material;
 typedef struct Shader Shader;
@@ -30,23 +32,26 @@ typedef struct Model Model;
 // FUNCTION PROTO
 //
 
-extern void r_init(GLFWwindow **window);
-extern void r_clear_background(Vec4);
-extern void r_begin_pass();
-extern void r_end_pass();
-extern void r_deinit();
+// @nocheckin
+extern void     r_init(GLFWwindow **window);
+extern void     r_clear_background(Vec4);
+extern void     r_begin_pass();
+extern void     r_end_pass();
+extern void     r_deinit();
+extern void     r_update_camera();
 
-extern bool r_load_shader(const char* filename, Shader* shader);
-extern void r_free_shader(Shader* shader);
+extern bool     r_load_shader(const char* filename, Shader* shader);
+extern void     r_free_shader(Shader* shader);
 
 // Models
-extern Model* r_load_model(const char* path);
-extern void r_free_model(Model* model);
+extern Model*   r_load_model(const char* path);
+extern void     r_free_model(Model* model);
+extern void     r_draw_model(Model* model, Mat4 rotation);
 
 // Textures
-extern Texture r_load_texture(const char* path);
-extern void    r_free_texture(Texture*);
-extern void    r_draw_texture(Texture, Vec3);
+extern Texture  r_load_texture(const char* path);
+extern void     r_free_texture(Texture*);
+extern void     r_draw_texture(Texture, Vec3);
 
 //
 // IMPLEMENTATION
