@@ -71,10 +71,13 @@ typedef enum {
 
 typedef struct App {
     GLFWwindow* window;
+    i32 width;
+    i32 height;
 } App;
 
 extern void app_init(App* app, Backend);
 extern void app_run(App* app);
+extern bool app_should_close(App* app);
 extern void app_deinit(App* app);
 
 extern bool app_is_key_pressed(Keys key);

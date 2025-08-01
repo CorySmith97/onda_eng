@@ -38,12 +38,18 @@ void app_init(
     app->window = glfwCreateWindow(640, 480, "Hello, World!", NULL, NULL);
 }
 
-void app_run(App* app) {
-    while (!glfwWindowShouldClose(app->window)) {
-        glfwPollEvents();
-    }
+bool app_should_close(App* app) {
+    glfwSwapBuffers(app->window);
+    glfwPollEvents();
+    return glfwWindowShouldClose(app->window);
 }
 
-void app_deinit(App* app) {
+void app_deinit(
+    App* app
+) {
     glfwDestroyWindow(app->window);
+}
+
+void app_is_key_pressed(Keys key) {
+
 }

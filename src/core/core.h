@@ -62,10 +62,18 @@ void     c_string8_destroy(String8 *string);
 
 // MATH
 
-typedef struct Vec2 Vec2;
-typedef struct Vec3 Vec3;
-typedef struct Vec4 Vec4;
-typedef struct Mat4 Mat4;
+typedef struct Vec2 {
+    f32 x, y;
+} Vec2;
+typedef struct Vec3 {
+    f32 x, y, z;
+} Vec3;
+typedef struct Vec4 {
+    f32 x, y, z, w;
+} Vec4;
+typedef struct Mat4 {
+    f32 m[16];
+} Mat4;
 
 extern Vec2 c_vec2_add(Vec2 a, Vec2 b);
 extern Vec2 c_vec2_sub(Vec2 a, Vec2 b);

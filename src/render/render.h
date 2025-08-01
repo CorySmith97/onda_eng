@@ -7,9 +7,7 @@ Public API for the Rendering Module.
 #define RENDER_H
 
 #include "../core/core.h"
-#include <epoxy/gl.h>
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include "../app/app.h"
 #include "stdbool.h"
 
 // DATA PROTO
@@ -19,21 +17,50 @@ Public API for the Rendering Module.
 //
 typedef void* Render;
 
+
 typedef struct Camera Camera;
 typedef struct Mesh Mesh;
 typedef struct Material Material;
-typedef struct Shader Shader;
-typedef struct Texture Texture;
-typedef struct Vertex Vertex;
+
+typedef struct Rectangle {
+    i32 x;
+    i32 y;
+    i32 width;
+    i32 height;
+} Rectangle;
+
+typedef struct Shader {
+	i32 id;
+} Shader;
+
+typedef struct Texture {
+    i32 id;
+    i32 width;
+    i32 height;
+    u8 *data;
+} Texture;
+
+typedef struct Vertex {
+    f32 pos[3];
+    f32 norm[3];
+    f32 tex[2];
+} Vertex;
+
 typedef struct VertexBuffer VertexBuffer;
 typedef struct Model Model;
+
+typedef struct DrawCall {
+    Vertex *vertices;
+    u16 *indices;
+    u32 vertices_count;
+    u32 indices_count;
+} DrawCall;
 
 //
 // FUNCTION PROTO
 //
 
-// @nocheckin
-extern void     r_init(GLFWwindow **window);
+extern void     r_init(App *app);
 extern void     r_clear_background(Vec4);
 extern void     r_begin_pass();
 extern void     r_end_pass();
@@ -56,12 +83,5 @@ extern void     r_draw_texture(Texture, Vec3);
 //
 // IMPLEMENTATION
 //
-
-struct Texture {
-    String8 name;
-    i32 width;
-    i32 height;
-    u8 *data;
-};
 
 #endif //RENDER_H
