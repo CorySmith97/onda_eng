@@ -49,13 +49,6 @@ typedef struct Vertex {
 typedef struct VertexBuffer VertexBuffer;
 typedef struct Model Model;
 
-typedef struct DrawCall {
-    Vertex *vertices;
-    u16 *indices;
-    u32 vertices_count;
-    u32 indices_count;
-} DrawCall;
-
 //
 // FUNCTION PROTO
 //
@@ -79,6 +72,9 @@ extern void     r_draw_model(Model* model, Mat4 rotation);
 extern Texture  r_load_texture(const char* path);
 extern void     r_free_texture(Texture*);
 extern void     r_draw_texture(Texture, Vec3);
+
+// Drawing
+extern void r_draw_rectangle( Vec3 position, Vec4 color );
 
 //
 // IMPLEMENTATION

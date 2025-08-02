@@ -35,7 +35,9 @@ void app_init(
     } break;
     }
 
-    app->window = glfwCreateWindow(640, 480, "Hello, World!", NULL, NULL);
+    app->width = 1280;
+    app->height = 720;
+    app->window = glfwCreateWindow(app->width, app->height, "Hello, World!", NULL, NULL);
 }
 
 bool app_should_close(App* app) {
@@ -50,6 +52,6 @@ void app_deinit(
     glfwDestroyWindow(app->window);
 }
 
-void app_is_key_pressed(Keys key) {
+bool app_is_key_pressed(Keys key) {
 
 }
