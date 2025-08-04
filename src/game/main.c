@@ -20,6 +20,8 @@ int main() {
     Texture *t = r_texture_load("assets/testmap.png");
 
     while (!app_should_close(&app)) {
+        Vec2 mouse_pos = app_get_mouse_position(&app);
+        LOG(info, "Mouse position: (%f,%f)", mouse_pos.x, mouse_pos.y);
         r_begin_pass();
         r_clear_background((Vec4){1.0f, 1.0f, 1.0f, 1.0f});
         r_draw_texture(*t, (Vec3){0.0f, 0.0f, 0.0f}, (Vec4){0.0f, 0.0f, 1.0f, 1.0f});

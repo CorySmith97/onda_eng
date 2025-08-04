@@ -73,6 +73,8 @@ typedef struct App {
     GLFWwindow* window;
     i32 width;
     i32 height;
+    f64 mouse_x;
+    f64 mouse_y;
 } App;
 
 extern void app_init(App* app, Backend);
@@ -81,5 +83,6 @@ extern bool app_should_close(App* app);
 extern void app_deinit(App* app);
 
 extern bool app_is_key_pressed(Keys key);
+extern Vec2 app_get_mouse_position(App* app);
 
 #endif //APP_H

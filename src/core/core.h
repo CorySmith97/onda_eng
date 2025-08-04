@@ -150,9 +150,22 @@ static const char* log_color_str[] = {
 };
 
 #ifdef POSIX
-    #define LOG(_LEVEL, _STR, ...) (printf("%s[%s]\e[0m" _STR "\n", log_color_str[_LEVEL], log_level_str[_LEVEL],  ##__VA_ARGS__))
+    #define LOG(_LEVEL, _STR, ...) (printf("%s[%s]\e[0m " _STR "\n", log_color_str[_LEVEL], log_level_str[_LEVEL],  ##__VA_ARGS__))
 #else
     #define LOG(_LEVEL, _STR, ...) (printf("[%s] " _STR "\n",  log_level_str[_LEVEL],  ##__VA_ARGS__))
 #endif
+
+typedef struct Hashmap {
+    void *data;
+    u64 data_size;
+    String8 *keys;
+    u64 keys_len;
+} Hashmap;
+
+extern Hashmap *hashmap_create(Arena *arena);
+extern void     hashmap_free(Hashmap *map);
+extern void     hashmap_set(Hashmap *map, String8 key, void *value);
+extern void    *hashmap_get(Hashmap *map, String8 key);
+extern void     hashmap_remove(Hashmap *map, String8 key);
 
 #endif //CORE_H

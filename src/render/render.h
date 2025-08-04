@@ -17,6 +17,8 @@ Public API for the Rendering Module.
 //
 typedef void* Render;
 
+#define WHITE
+
 typedef enum {
     Camera_Orthographic,
     Camera_Perspective,
