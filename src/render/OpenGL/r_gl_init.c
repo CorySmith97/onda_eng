@@ -2,28 +2,35 @@
 #include "../render.h"
 #include <OpenGL/gl.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include "../../thirdparty/stb_image.h"
 
 const char *vs_shader = "#version 410 core\n"
     "layout (location = 0) in vec3 a_pos;\n"
     "layout (location = 1) in vec4 a_color;\n"
+    "layout (location = 2) in vec2 a_texcoord;\n"
     "out vec4 v_color;\n"
+    "out vec2 v_texcoord;\n"
     "void main() {\n"
     "   gl_Position = vec4(a_pos, 1.0);\n"
     "   v_color = a_color;\n"
+    "   v_texcoord = a_texcoord;\n"
     "}\0";
 
 const char *fs_shader = "#version 410 core\n"
     "in vec4 v_color;\n"
+    "in vec2 v_texcoord;\n"
     "out vec4 out_color;\n"
+    "uniform sampler2D mtexture;\n"
     "void main() {\n"
-    "   out_color = v_color;\n"
+    "   out_color = texture(mtexture, v_texcoord);\n"
     "}\0";
 
 typedef struct DrawCall {
     u32 vao;
-    u32 vbo;
-    u32 ebo;
+    u32 texture;
     u32 vert_count;
 } DrawCall;
 
@@ -67,6 +74,7 @@ struct Render {
 };
 
 struct Render *r;
+u32 shader_program;
 
 void r_init(
     App *app
@@ -85,7 +93,7 @@ void r_init(
     glCompileShader(vertex_shader);
     glCompileShader(frag_shader);
 
-    u32 shader_program = glCreateProgram();
+    shader_program = glCreateProgram();
     glAttachShader(shader_program, vertex_shader);
     glAttachShader(shader_program, frag_shader);
     glLinkProgram(shader_program);
@@ -126,6 +134,9 @@ void r_end_pass() {
     for (u32 i = 0; i < r->cmdbuf.draw_calls.len; i++) {
         DrawCall dc = r->cmdbuf.draw_calls.data[i];
         //LOG(info, "draw call %i, %i", dc.vao, dc.vert_count);
+        if (dc.texture != UINT32_MAX) {
+            glBindTexture(GL_TEXTURE_2D, dc.texture);
+        }
         glBindVertexArray(dc.vao);
         glDrawElements(GL_TRIANGLES, dc.vert_count, GL_UNSIGNED_INT, NULL);
     }
@@ -144,10 +155,10 @@ void r_draw_rectangle(
     DrawCall *dc = c_arena_alloc(&r->arena, sizeof(DrawCall));
 
     f32 vertices[] = {
-        -0.1f, -0.1f, 0.0f, color.x, color.y, color.z, color.w,
-        0.1f, -0.1f, 0.0f, color.x, color.y, color.z, color.w,
-        0.1f, 0.1f, 0.0f, color.x, color.y, color.z, color.w,
-        -0.1f, 0.1f, 0.0f, color.x, color.y, color.z, color.w,
+        -0.1f, -0.1f, 0.0f, color.x, color.y, color.z, color.w, 0.0f, 0.0f,
+        0.1f, -0.1f, 0.0f, color.x, color.y, color.z, color.w, 1.0f, 0.0f,
+        0.1f, 0.1f, 0.0f, color.x, color.y, color.z, color.w, 1.0f, 1.0f,
+        -0.1f, 0.1f, 0.0f, color.x, color.y, color.z, color.w, 0.0f, 1.0f,
     };
 
     u32 indices[] = {
@@ -171,7 +182,7 @@ void r_draw_rectangle(
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    GLsizei stride = 7 * sizeof(f32);
+    GLsizei stride = 9 * sizeof(f32);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
     glEnableVertexAttribArray(0);
@@ -179,17 +190,96 @@ void r_draw_rectangle(
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(f32) * 3));
     glEnableVertexAttribArray(1);
 
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(f32) * 7));
+    glEnableVertexAttribArray(2);
+
     glBindVertexArray(0);
     dc->vert_count = 6;
     dc->vao = vao;
+    dc->texture = UINT32_MAX;
+    r->cmdbuf.draw_calls.len += 1;
+    r->cmdbuf.draw_calls.data[0] = *dc;
+}
+
+void r_draw_texture(
+    Texture texture,
+    Vec3 position,
+    Vec4 color
+) {
+    DrawCall *dc = c_arena_alloc(&r->arena, sizeof(DrawCall));
+
+    f32 vertices[] = {
+        -0.1f, -0.1f, 0.0f, color.x, color.y, color.z, color.w, 0.0f, 0.0f,
+        0.1f, -0.1f, 0.0f, color.x, color.y, color.z, color.w, 1.0f, 0.0f,
+        0.1f, 0.1f, 0.0f, color.x, color.y, color.z, color.w, 1.0f, 1.0f,
+        -0.1f, 0.1f, 0.0f, color.x, color.y, color.z, color.w, 0.0f, 1.0f,
+    };
+
+    u32 indices[] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    u32 vbo;
+    u32 ebo;
+    u32 vao;
+
+    glGenBuffers(1, &vbo);
+    glGenBuffers(1, &ebo);
+    glGenVertexArrays(1, &vao);
+
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    GLsizei stride = 9 * sizeof(f32);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(f32) * 3));
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(f32) * 7));
+    glEnableVertexAttribArray(2);
+
+    glBindVertexArray(0);
+    dc->vert_count = 6;
+    dc->vao = vao;
+    dc->texture = texture.id;
     r->cmdbuf.draw_calls.len += 1;
     r->cmdbuf.draw_calls.data[0] = *dc;
 
+
 }
 
-void internal_r_vert_attributes() {
-    return;
-}
+Texture *r_texture_load(
+    const char *path
+) {
+    Texture *t = c_arena_alloc(&r->arena, sizeof(Texture));
 
+    LOG(info, "%s", path);
+    u8 *data = stbi_load(path, &t->width , &t->height, &t->channels, 3);
+    assert(data != NULL);
+
+    glGenTextures(1, &t->id);
+    glBindTexture(GL_TEXTURE_2D, t->id);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, t->width, t->height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(data);
+
+    return t;
+}
 
 void r_update_camera();
