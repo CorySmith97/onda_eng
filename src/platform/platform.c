@@ -19,6 +19,8 @@ int app_run(PlatformDesc *desc) {
         case BACKEND_SOKOL_WEB: {
         } break;
     }
+
+    return 1;
 }
 
 static KeyboardState keyboard_state;
@@ -50,4 +52,26 @@ bool isKeyReleased(int key) {
         pressed = true;
     }
     return pressed;
+}
+
+void onMouseDown(int button) { 
+}
+void onMouseUp(int button) { 
+}
+void onMouseMoved(float x, float y, float dx, float dy) { 
+}
+void onKeyDown(int key) { 
+}
+void onKeyUp(int key) { 
+}
+void onKeyChar(uint32_t codepoint) { 
+}
+void onTouchBegin(float x, float y, int id) { 
+}
+void onTouchMoved(float x, float y, int id) { 
+}
+void onTouchEnded(float x, float y, int id) { 
+}
+
+void app_on_resize_fn(void) { 
 }

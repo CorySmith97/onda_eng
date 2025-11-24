@@ -41,4 +41,18 @@ bool isMouseButtonPressed(int);
 bool isMouseButtonRelased(int);
 
 
+// external functions you already use
+void onMouseDown(int button);
+void onMouseUp(int button);
+void onMouseMoved(float x, float y, float dx, float dy);
+void onKeyDown(int key);
+void onKeyUp(int key);
+void onKeyChar(uint32_t codepoint);
+void onTouchBegin(float x, float y, int id);
+void onTouchMoved(float x, float y, int id);
+void onTouchEnded(float x, float y, int id);
+
+void app_on_resize_fn(void);
+
+
 #endif  // PLATFORM_H

@@ -7,6 +7,10 @@
 
 #define POSIX
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable" 
+#pragma clang diagnostic ignored "-Wmissing-braces" 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -26,7 +30,7 @@ typedef size_t usize;
 #define MB(s) ((s) * 1024)
 #define GB(s) ((s) * 1024 * 1024)
 
-#define panic(fmt) \
+#define c_panic(fmt) \
     do {    \
     fprintf(stderr, "Panic at %s:%d\n\tMessage: %s\n\n", __FILE__, __LINE__, fmt); \
     exit(1); \
@@ -62,17 +66,19 @@ void     c_string8_destroy(String8 *string);
 
 // MATH
 
-typedef struct Vec2 {
-    f32 x, y;
+typedef union Vec2 {
+    struct {f32 x, y;};
+    f32 v[2];
 } Vec2;
-typedef struct Vec3 {
-    f32 x, y, z;
+typedef union Vec3 {
+    struct {f32 x, y, z;};
+    f32 v[3];
 } Vec3;
 typedef struct Vec4 {
     f32 x, y, z, w;
 } Vec4;
 typedef struct Mat4 {
-    f32 m[16];
+    f32 m[4][4];
 } Mat4;
 
 extern Vec2 c_vec2_add(Vec2 a, Vec2 b);

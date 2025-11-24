@@ -6,16 +6,7 @@ Public API for the Rendering Module.
 #ifndef RENDER_H
 #define RENDER_H
 
-#include "../core/core.h"
-#include "../app/app.h"
-#include "stdbool.h"
-
 // DATA PROTO
-
-//
-// Each backend implements their own version of this.
-//
-typedef void* Render;
 
 #define WHITE
 
@@ -33,12 +24,12 @@ typedef struct Camera {
     CameraTypes type;
 } Camera;
 
-typedef struct Rectangle {
+typedef struct Rectanglei {
     i32 x;
     i32 y;
     i32 width;
     i32 height;
-} Rectangle;
+} Rectanglei;
 
 typedef struct Shader {
 	i32 id;
@@ -60,6 +51,9 @@ typedef struct Model Model;
 // FUNCTION PROTO
 //
 
+void draw_sprite(Sprite *s, vec2 pos, f32 scale, Color: color);
+
+/*
 extern void     r_init(App *app);
 extern void     r_clear_background(Vec4);
 extern void     r_begin_pass();
@@ -81,6 +75,7 @@ extern void     r_draw_model(Model* model, Mat4 rotation);
 extern Texture* r_texture_load(const char* path);
 extern void     r_texture_laod(Texture*);
 extern void     r_draw_texture(Texture, Vec3, Vec4);
+*/
 
 // Drawing
 extern void r_draw_rectangle(Vec3 position, Vec4 color);

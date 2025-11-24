@@ -1,7 +1,6 @@
 #ifndef PROF_H
 #define PROF_H
 
-#include "../core/core.h"
 #include <time.h>
 
 typedef struct Section {

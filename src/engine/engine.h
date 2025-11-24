@@ -3,10 +3,10 @@
 /*
 Engine runtime API
 */
-#include "../core/core.h"
 
 // Types
 typedef struct Sprite {
+    sg_image handle;
 } Sprite;
 
 typedef struct Camera2D {
@@ -15,17 +15,11 @@ typedef struct Camera2D {
     Vec3 target;
 } Camera2D;
 
-typedef enum KeyboardKeys {
-};
-
-typedef enum MouseButton {
-};
-
 // Functions
 
 // Drawing
-void drawSprite(Sprite);
-void drawSpriteEx(Sprite);
+void drawSprite(Sprite, Vec2, f32, Color);
+void drawSpriteEx(Sprite, Vec2, f32, Color);
 void drawSpritePro(Sprite);
 
 #endif  // ENGINE_H

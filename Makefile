@@ -8,6 +8,7 @@ RENDER_VK_SRC:=src/render/Vulkan/r_main.c
 
 BUILD_DIR:=bin
 C_FLAGS=-g -Wall -Wextra -std=c23
+C_FLAGS+=-Wno-unused-variable -Wno-missing-braces
 APP_INCLUDE=-I/opt/homebrew/Cellar/glfw/3.4/include -I/usr/local/include/
 APP_INCLUDE+=-I/opt/homebrew/include -I./src/thirdparty
 APP_LINK:=-L/opt/homebrew/Cellar/glfw/3.4/lib -lglfw -rpath /usr/local/lib/ -L/usr/local/lib/ -lvulkan.1 -framework Cocoa -framework Metal -framework MetalKit -framework Foundation -framework QuartzCore 

@@ -3,7 +3,7 @@
 /*
  * Global Allocator Interface
  */
-typedef struct Allocator {
+typedef struct PageAllocator {
     void *pages;
     void *free_list;
     size_t page_count;
@@ -13,7 +13,13 @@ typedef struct Allocator {
     (*alloc_fn)(size_t) void*;
     (*free_fn)(void*);
 #endif
-} Allocator;
+} PageAllocator;
 
-void *alloc(Allocator*, size_t);
-void free(Allocator*);
+void *paalloc(PageAllocator*, size_t);
+void pafree(PageAllocator*);
+
+typedef struct ArenaAllocator {
+} ArenaAllocator;
+
+void *aaalloc(ArenaAllocator*, size_t);
+void aafree(ArenaAllocator*);

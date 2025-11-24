@@ -27,7 +27,71 @@ static void sokol_frame(void) {
 
 }
 
-static void sokol_event(const sapp_event *ev) {
+void sokol_event(const sapp_event* ev) {
+    if (!ev) return;
+
+    // let ImGui try to handle the event first
+    //bool imgui_did_handle = simgui_handle_event(ev);
+    //if (imgui_did_handle)
+    //    return;
+
+    switch (ev->type) {
+        case SAPP_EVENTTYPE_MOUSE_DOWN:
+            onMouseDown((int)ev->mouse_button);
+            break;
+
+        case SAPP_EVENTTYPE_MOUSE_UP:
+            onMouseUp((int)ev->mouse_button);
+            break;
+
+        case SAPP_EVENTTYPE_MOUSE_MOVE:
+            onMouseMoved(ev->mouse_x, ev->mouse_y, ev->mouse_dx, ev->mouse_dy);
+            break;
+
+        case SAPP_EVENTTYPE_KEY_DOWN:
+            if (!ev->key_repeat)
+                onKeyDown((int)ev->key_code);
+            break;
+
+        case SAPP_EVENTTYPE_KEY_UP:
+            onKeyUp((int)ev->key_code);
+            break;
+
+        case SAPP_EVENTTYPE_CHAR:
+            onKeyChar(ev->char_code);
+            break;
+
+        case SAPP_EVENTTYPE_TOUCHES_BEGAN:
+            for (int i = 0; i < ev->num_touches; i++) {
+                const sapp_touchpoint* t = &ev->touches[i];
+                if (t->changed)
+                    onTouchBegin(t->pos_x, t->pos_y, t->identifier);
+            }
+            break;
+
+        case SAPP_EVENTTYPE_TOUCHES_MOVED:
+            for (int i = 0; i < ev->num_touches; i++) {
+                const sapp_touchpoint* t = &ev->touches[i];
+                if (t->changed)
+                    onTouchMoved(t->pos_x, t->pos_y, t->identifier);
+            }
+            break;
+
+        case SAPP_EVENTTYPE_TOUCHES_ENDED:
+            for (int i = 0; i < ev->num_touches; i++) {
+                const sapp_touchpoint* t = &ev->touches[i];
+                if (t->changed)
+                    onTouchEnded(t->pos_x, t->pos_y, t->identifier);
+            }
+            break;
+
+        case SAPP_EVENTTYPE_RESIZED:
+            app_on_resize_fn();
+            break;
+
+        default:
+            break;
+    }
 }
 
 static void sokol_deinit(void) {

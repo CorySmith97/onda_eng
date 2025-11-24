@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ENGINE_INTERNAL_H
+#define ENGINE_INTERNAL_H
 
 /*
 This is the private header file for the runtime.
@@ -14,3 +15,5 @@ typedef struct Plugin {
     void (*game_input_fn)(void*);
     void (*game_deinit_fn)(void*);
 } Plugin;
+
+#endif //  ENGINE_INTERNAL_H
