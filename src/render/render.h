@@ -51,6 +51,9 @@ typedef struct Texture {
     i32 height;
 } Texture;
 
+typedef struct Mesh {
+};
+
 typedef struct Model Model;
 
 //

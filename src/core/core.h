@@ -105,7 +105,12 @@ extern Mat4 c_mat4_identity();
 
 // ARRAYLISTS
 
-typedef struct ArrayI32 ArrayI32;
+typedef struct ArrayI32 {
+    i32* data;
+    u32 len;
+    u32 capacity;
+} ArrayI32;
+
 typedef struct ArrayF32 ArrayF32;
 typedef struct ArrayVec2 ArrayVec2;
 typedef struct ArrayVec3 ArrayVec3;
@@ -116,6 +121,25 @@ typedef struct ArrayString {
     u32 len;
     u32 capacity;
 } ArrayString;
+
+#define array_create(a, i)
+#define array_reserve(a, s)
+#define array_free(a)
+
+#define array_push(a, v)                                        \
+    do {                                                        \
+        if (((a)->len + 1 < (a)->capacity)) {                   \
+            (a)->data[(a)->len] = v;                            \
+            (a)->len += 1;                                      \
+        } else {                                                \
+            u32 new_cap = (a)->capacity ? ((a)->capacity * 2) : 2;\
+            (a)->data = realloc((a)->data, new_cap * sizeof(v));\
+            (a)->capacity = new_cap;                            \
+            (a)->data[(a)->len] = v;                            \
+            (a)->len++;                                         \
+        }                                                       \
+    } while (0);
+
 
 extern ArrayString *c_array_string_create(Arena*, u32);
 extern void         c_array_string_push(Arena*, ArrayString*, const char*);

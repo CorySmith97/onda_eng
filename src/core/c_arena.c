@@ -25,8 +25,9 @@ void *c_arena_alloc(
     if (arena->current + size > arena->size) {
         return NULL;
     }
+    void *ptr = arena->data + arena->current;
     arena->current += size;
-    return arena->data + arena->current;
+    return ptr;
 }
 
 void c_arena_reset(

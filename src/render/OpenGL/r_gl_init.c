@@ -68,6 +68,7 @@ struct CommandBuffer {
 
 struct Render {
     Arena arena;
+    Arena frame;
     Rectangle viewport;
     bool drawing_enabled;
     CommandBuffer cmdbuf;
@@ -81,8 +82,9 @@ void r_init(
 ) {
     r = (struct Render *)malloc(sizeof(struct Render));
     c_arena_init(&r->arena, GB(1));
+    c_arena_init(&r->frame, GB(1));
     glfwMakeContextCurrent(app->window);
-    r->cmdbuf.draw_calls = *r_array_draw_calls_init(&r->arena, 10);
+    r->cmdbuf.draw_calls = *r_array_draw_calls_init(&r->frame, 10);
 
     glViewport(0, 0, app->width, app->height);
 
@@ -118,6 +120,8 @@ void r_init(
         LOG(error, "shader program failed: %s", infoLog);
     }
     glUseProgram(shader_program);
+    glDeleteShader(vertex_shader);
+    glDeleteShader(frag_shader);
 }
 
 void r_clear_background(Vec4 color) {
@@ -139,12 +143,19 @@ void r_end_pass() {
         }
         glBindVertexArray(dc.vao);
         glDrawElements(GL_TRIANGLES, dc.vert_count, GL_UNSIGNED_INT, NULL);
+        glDeleteVertexArrays(1, &dc.vao);
+        glBindTexture(GL_TEXTURE_2D, 0); // optional
+
     }
+
+    LOG(info, "Memory Footprints: frame: %d, LongLived: %d", r->frame.current, r->arena.current);
     r->cmdbuf.draw_calls.len = 0;
+    c_arena_reset(&r->frame);
 }
 
 void r_deinit() {
     c_arena_deinit(&r->arena);
+    c_arena_deinit(&r->frame);
     free(r);
 }
 
@@ -152,7 +163,7 @@ void r_draw_rectangle(
     Vec3 position,
     Vec4 color
 ) {
-    DrawCall *dc = c_arena_alloc(&r->arena, sizeof(DrawCall));
+    DrawCall *dc = c_arena_alloc(&r->frame, sizeof(DrawCall));
 
     f32 vertices[] = {
         -0.1f, -0.1f, 0.0f, color.x, color.y, color.z, color.w, 0.0f, 0.0f,
@@ -194,6 +205,8 @@ void r_draw_rectangle(
     glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ebo);
     dc->vert_count = 6;
     dc->vao = vao;
     dc->texture = UINT32_MAX;
@@ -206,8 +219,7 @@ void r_draw_texture(
     Vec3 position,
     Vec4 color
 ) {
-    DrawCall *dc = c_arena_alloc(&r->arena, sizeof(DrawCall));
-
+    LOG(debug, "Frame before allocation: %zu", r->frame.current);
     f32 vertices[] = {
         -0.1f, -0.1f, 0.0f, color.x, color.y, color.z, color.w, 0.0f, 0.0f,
         0.1f, -0.1f, 0.0f, color.x, color.y, color.z, color.w, 1.0f, 0.0f,
@@ -248,11 +260,14 @@ void r_draw_texture(
     glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
-    dc->vert_count = 6;
-    dc->vao = vao;
-    dc->texture = texture.id;
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ebo);
+    r->cmdbuf.draw_calls.data[r->cmdbuf.draw_calls.len] = (DrawCall){
+        .vert_count = 6,
+        .vao = vao,
+        .texture = texture.id,
+    };
     r->cmdbuf.draw_calls.len += 1;
-    r->cmdbuf.draw_calls.data[0] = *dc;
 
 
 }
