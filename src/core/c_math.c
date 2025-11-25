@@ -2,7 +2,7 @@
 // Created by Cory Smith on 7/25/25.
 //
 
-#include "core.h"
+#include "core_inc.h"
 #include <math.h>
 
 //

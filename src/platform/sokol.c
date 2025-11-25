@@ -6,14 +6,18 @@
 #include <sokol_glue.h>
 #include <sokol_log.h>
 
-static void sokol_init(void) {
+static void sokol_init(void* user_data) {
+    //LOG(info, "Backend selected Sokol Native");
     sg_setup(&(sg_desc){
         .environment = sglue_environment(),
         .logger.func = slog_func,
     });
 }
 
-static void sokol_frame(void) {
+static void sokol_frame(void* user_data) {
+    PlatformDesc *usr = user_data;
+    usr->frame_fn();
+
     sg_begin_pass(&(sg_pass){
         .action = {
             .colors[0] = {
@@ -27,7 +31,7 @@ static void sokol_frame(void) {
 
 }
 
-void sokol_event(const sapp_event* ev) {
+void sokol_event(const sapp_event* ev, void* user_data) {
     if (!ev) return;
 
     // let ImGui try to handle the event first
@@ -94,6 +98,6 @@ void sokol_event(const sapp_event* ev) {
     }
 }
 
-static void sokol_deinit(void) {
+static void sokol_deinit(void* user_data) {
     sg_shutdown();
 }

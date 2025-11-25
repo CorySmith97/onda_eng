@@ -1,5 +1,5 @@
 // Header Includes
-#include "core/core.h"
+#include "core/core_inc.h"
 #include "platform/platform.h"
 
 // C Includes

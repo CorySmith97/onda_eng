@@ -11,9 +11,9 @@ Public API for the Rendering Module.
 #define WHITE
 
 typedef enum {
-    Camera_Orthographic,
-    Camera_Perspective,
-    Camera_2D,
+    CAMERA_ORTHOGRAPHIC,
+    CAMERA_PERSPECTIVE,
+    CAMERA_2D,
 } CameraTypes;
 
 typedef struct Camera {
@@ -24,12 +24,19 @@ typedef struct Camera {
     CameraTypes type;
 } Camera;
 
-typedef struct Rectanglei {
+typedef struct RectangleI32 {
     i32 x;
     i32 y;
     i32 width;
     i32 height;
-} Rectanglei;
+} RectangleI32;
+
+typedef struct RectangleF32 {
+    f32 x;
+    f32 y;
+    f32 width;
+    f32 height;
+} RectangleF32;
 
 typedef struct Shader {
 	i32 id;
@@ -47,11 +54,31 @@ typedef struct Mesh {
 
 typedef struct Model Model;
 
+typedef struct Sprite {
+    u32 id;
+} Sprite;
+
 //
 // FUNCTION PROTO
 //
 
-void draw_sprite(Sprite *s, vec2 pos, f32 scale, Color: color);
+SpritesheetId load_spritesheet(const char *path);
+
+/** @brief Drawing function for a single sprite. The sprite for this is the entire image.
+ */
+void draw_sprite(Texture s, vec2 pos, f32 scale, Color color);
+
+/** @brief Drawing function for a single sprite from a spritesheet.
+ *      src is the starting position of the sprite. size is the 
+ *      width/height of the sprite as found on the spritesheet.
+ */
+void draw_sprite_ex(Texture s, vec2 pos, vec2 src, vec2 size, f32 scale, Color color);
+
+/** @brief Same idea as the draw_sprite_ex, but allows for rotation.
+ */
+void draw_sprite_ex(Texture s, vec2 pos, vec2 src, vec2 size, f32 scale, f32 rotation, Color color);
+
+void update_camera(Camera *cam);
 
 /*
 extern void     r_init(App *app);
@@ -75,10 +102,10 @@ extern void     r_draw_model(Model* model, Mat4 rotation);
 extern Texture* r_texture_load(const char* path);
 extern void     r_texture_laod(Texture*);
 extern void     r_draw_texture(Texture, Vec3, Vec4);
-*/
 
 // Drawing
 extern void r_draw_rectangle(Vec3 position, Vec4 color);
+*/
 
 //
 // IMPLEMENTATION

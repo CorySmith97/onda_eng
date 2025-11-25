@@ -2,7 +2,7 @@
 // Created by Cory Smith on 8/3/25.
 //
 
-#include "core.h"
+#include "core_inc.h"
 #include <stdlib.h>
 
 #define FNV_PRIME 16777619
