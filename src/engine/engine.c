@@ -1,3 +1,6 @@
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#include "core_shaders.h"
 
 HashMap *textures;
 
@@ -7,17 +10,45 @@ void engine_init() {
 
 // @todo:cs this needs to open file if failed to find in the hashmap.
 Texture *load_spritesheet(const char *path) {
-    Texture t;
-    void *value = (Texture*)hashmap_get(textures, path);
-    if (value == NULL) {
-        LOG(error, "Failed to load texture: %s", path);
+    LOG(info, "Trying to load %s", path);
+    Texture *t = malloc(sizeof(Texture));;
+    void *value = hashmap_get(textures, path);
+    if (value != NULL) {
+        return (Texture*)value;
+    }
+
+    int width, height, channels;
+    stbi_uc *pixels = stbi_load(path, &width, &height, &channels, 4);
+    if (pixels == NULL) {
+        LOG(warn, "Failed to load %s", path);
         return NULL;
     }
 
-    return (Texture*)value;
-}
+    sg_image img = sg_make_image(&(sg_image_desc) {
+        .type = SG_IMAGETYPE_ARRAY,
+        .width = width,
+        .height = height,
+        .pixel_format = SG_PIXELFORMAT_RGBA8,
+        .data.mip_levels[0] = {
+            .ptr = pixels,
+            .size = (size_t)(width * height * 4),
+        },
+    });
+    //stbi_image_free(pixels);
 
-void draw_sprite(Texture *s, Vec2 pos, f32 scale, Color color) {
+    // a texture view for the image
+    sg_view tex_view = sg_make_view(&(sg_view_desc){
+        .texture = { .image = img },
+        .label = "array-texture-view"
+    });
+
+    // a sampler object
+    sg_sampler smp = sg_make_sampler(&(sg_sampler_desc){
+        .min_filter = SG_FILTER_LINEAR,
+        .mag_filter = SG_FILTER_LINEAR,
+        .label = "sampler",
+    });
+
     f32 verts[16] = {
         0, 1, 0.0, 1.0,
         1, 1, 1.0, 1.0,
@@ -30,29 +61,41 @@ void draw_sprite(Texture *s, Vec2 pos, f32 scale, Color color) {
         0, 2, 3,
     };
 
-    sg_bindings bind;
-    bind.vertex_buffers[0] = sg_make_buffer(&(sg_buffer_desc){
+    sg_buffer vbuf = sg_make_buffer(&(sg_buffer_desc){
         .data = SG_RANGE(verts),
     });
-    bind.index_buffer = sg_make_buffer(&(sg_buffer_desc) {
+    sg_buffer ibuf = sg_make_buffer(&(sg_buffer_desc) {
         .usage.index_buffer = true,
         .data = SG_RANGE(indices),
     });
 
-    //sg_pipeline pipe = sg_make_pipeline(&(sg_pipeline_desc){
-    //    .layout = {
-    //        .attr = {
-    //            [ATTR_SimpleTexture_position].format = SG_VERTEXFORMAT_FLOAT2,
-    //            [ATTR_SimpleTexture_texturecoord].format = SG_VERTEXFORMAT_FLOAT2,
-    //        },
-    //    },
-    //    .shader = sg_make_shader(SimpleTexture_shader_desc(sg_query_backend())),
-    //    .index_type = SG_INDEXTYPE_UINT16,
-    //});
+    t->pipe = sg_make_pipeline(&(sg_pipeline_desc){
+        .layout = {
+            .attrs = {
+                [ATTR_basic_atlas_position].format = SG_VERTEXFORMAT_FLOAT2,
+                [ATTR_basic_atlas_uv_coords].format = SG_VERTEXFORMAT_FLOAT2,
+            },
+        },
+        .shader = sg_make_shader(basic_atlas_shader_desc(sg_query_backend())),
+        .index_type = SG_INDEXTYPE_UINT16,
+    });
 
-    //sg_apply_pipeline(pipe);
-    //sg_apply_bindings(&bind);
-    //sg_draw(0, 6, 1);
+    t->bind = (sg_bindings) {
+        .vertex_buffers[0] = vbuf,
+        .index_buffer = ibuf,
+        //.views[VIEW_tex] = tex_view,
+        //.samplers[SMP_smp] = smp,
+    };
+
+    hashmap_put(textures, path, t);
+
+    return t;
+}
+
+void draw_sprite(Texture *s, Vec2 pos, f32 scale, Color color) {
+    sg_apply_pipeline(s->pipe);
+    sg_apply_bindings(&s->bind);
+    sg_draw(0, 6, 1);
 }
 
 //void draw_sprite_ex(Texture s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, Color color);

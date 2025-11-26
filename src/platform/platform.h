@@ -54,5 +54,8 @@ void onTouchEnded(float x, float y, int id);
 
 void app_on_resize_fn(void);
 
+void begin_drawing();
+void end_drawing();
+
 
 #endif  // PLATFORM_H

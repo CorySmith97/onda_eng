@@ -1,0 +1,26 @@
+@ctype mat4 Mat4
+
+@vs vs_atlas
+in vec2 position;
+in vec2 uv_coords;
+
+out vec2 uv;
+
+void main() {
+    gl_Position =  vec4((position), 1.0, 1.0);
+    uv = uv_coords;
+}
+@end
+
+@fs fs_atlas
+in vec2 uv;
+
+out vec4 frag_color;
+
+void main() {
+     frag_color = vec4(1, 0, 0, 1);
+}
+@end
+
+@program basic_atlas vs_atlas fs_atlas
+

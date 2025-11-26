@@ -10,11 +10,19 @@
 #include "platform/platform.c"
 #include "engine/engine.c"
 
+Texture *t;
+void init() {
+    t = load_spritesheet("data/testmap.png");
+    LOG(info, "Texture %p", t);
+}
+
 void frame() {
     if (isKeyPressed(32)) {
-        load_spritesheet("path.zig");
         printf("Key pressed. \n");
     }
+    begin_drawing();
+    draw_sprite(t, (Vec2){1, 1}, 1, (Color){255, 255, 255, 255});
+    end_drawing();
 }
 
 /*
@@ -71,6 +79,7 @@ int main() {
     app_run(&(PlatformDesc){
             .title = "test 2",
             .backend = BACKEND_SOKOL_NATIVE,
+            .init_fn = init,
             .frame_fn = frame,
     });
 }
