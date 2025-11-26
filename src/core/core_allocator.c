@@ -1,4 +1,3 @@
-#include "core_inc.h"
 
 /*
  * Global Allocator Interface

@@ -1,4 +1,3 @@
-#include "core_inc.h"
 #include <string.h>
 
 void c_array_string_push(

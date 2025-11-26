@@ -1,7 +1,6 @@
 //
 // Created by Cory Smith on 7/25/25.
 //
-#include "core_inc.h"
 #include <stdlib.h>
 #include <string.h>
 
