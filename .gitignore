@@ -5,3 +5,5 @@ bin/
 c.sh
 zig-out/
 .zig-cache/
+nob
+nob.h

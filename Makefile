@@ -1,6 +1,6 @@
 CC:=clang
 
-SRC:=src/main.m
+SRC_MAC:=src/main.m
 
 BUILD_DIR:=bin
 C_FLAGS=-g -Wall -Wextra -std=c23
@@ -26,23 +26,11 @@ gl:
 	$(MAKE) sample
 	$(MAKE) runs
 
-core:
-	$(CC) $(C_FLAGS) -o $(BUILD_DIR)/libbase.dylib -fPIC -shared $(CORE_SRC)
+mac:
+	$(CC) $(C_FLAGS) -o $(BUILD_DIR)/game  $(SRC_MAC) $(APP_LINK) $(APP_INCLUDE) $(GAME_LINK)
 
-render:
-	$(CC) $(C_FLAGS) -o $(BUILD_DIR)/librender.dylib -fPIC -shared -D DEBUG $(RENDER_GL_SRC) $(APP_INCLUDE) $(APP_LINK) $(RENDER_LINK)
-
-game:
-	$(CC) $(C_FLAGS) -o $(BUILD_DIR)/game  $(SRC) $(APP_LINK) $(APP_INCLUDE) $(GAME_LINK)
-
-sample:
-	$(CC) $(C_FLAGS) -o $(BUILD_DIR)/sample  src/game/main.c $(APP_LINK) $(APP_INCLUDE) $(GAME_LINK)
-
-runs:
-	./$(BUILD_DIR)/sample
-
-run:
-	./$(BUILD_DIR)/game
+windows:
+	$(CC) $(C_FLAGS) -o $(BUILD_DIR)/game  $(SRC)
 
 clean:
 	rm -rf bin/*

@@ -11,7 +11,7 @@ void engine_init() {
 // @todo:cs this needs to open file if failed to find in the hashmap.
 Texture *load_spritesheet(const char *path) {
     LOG(info, "Trying to load %s", path);
-    Texture *t = malloc(sizeof(Texture));;
+    Texture *t = malloc(sizeof(Texture));
     void *value = hashmap_get(textures, path);
     if (value != NULL) {
         return (Texture*)value;
@@ -34,7 +34,7 @@ Texture *load_spritesheet(const char *path) {
             .size = (size_t)(width * height * 4),
         },
     });
-    //stbi_image_free(pixels);
+    stbi_image_free(pixels);
 
     // a texture view for the image
     sg_view tex_view = sg_make_view(&(sg_view_desc){
