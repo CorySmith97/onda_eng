@@ -2,10 +2,19 @@
 #include <stb_image.h>
 #include "core_shaders.h"
 
-HashMap *textures;
+typedef struct InternalState {
+    Camera *cam;
+} InternalState;
+
+static HashMap *textures;
+static InternalState *_is;
 
 void engine_init() {
     textures = hashmap_create(sizeof(Texture));
+}
+
+void update_camera(Camera *cam) {
+    _is = cam;
 }
 
 // @todo:cs this needs to open file if failed to find in the hashmap.
@@ -83,8 +92,8 @@ Texture *load_spritesheet(const char *path) {
     t->bind = (sg_bindings) {
         .vertex_buffers[0] = vbuf,
         .index_buffer = ibuf,
-        //.views[VIEW_tex] = tex_view,
-        //.samplers[SMP_smp] = smp,
+        .views[VIEW_tex2d] = tex_view,
+        .samplers[SMP_smp] = smp,
     };
 
     hashmap_put(textures, path, t);
@@ -92,9 +101,16 @@ Texture *load_spritesheet(const char *path) {
     return t;
 }
 
+/* The default draw sprite functions will only be compatible with the basic_atlas shader found in 
+ * core shaders for the meantime.
+*/
 void draw_sprite(Texture *s, Vec2 pos, f32 scale, Color color) {
+    vs_param_t vs_params = {
+        .mvp = compute_mvp(_is->cam),
+    };
     sg_apply_pipeline(s->pipe);
     sg_apply_bindings(&s->bind);
+    sg_apply_uniforms(UB_vs_params, &SG_RANGE(vs_params));
     sg_draw(0, 6, 1);
 }
 

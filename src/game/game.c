@@ -3,6 +3,7 @@
 static GameState *s;
 
 Texture *t;
+
 void init() {
     t = load_spritesheet("data/testmap.png");
     LOG(info, "Texture %p", t);

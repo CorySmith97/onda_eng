@@ -50,9 +50,10 @@ typedef struct Texture {
 } Texture;
 
 typedef struct Mesh {
-};
+} Mesh;
 
-typedef struct Model Model;
+typedef struct Model {
+} Model;
 
 typedef struct Sprite {
     u32 id;
@@ -84,6 +85,6 @@ void draw_sprite(Texture *s, Vec2 pos, f32 scale, Color color);
 //void draw_sprite_ex(Texture s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, f32 rotation, Color color);
 
 void update_camera(Camera *cam);
-
+Mat4 get_camera_matrix(Camera cam);
 
 #endif  // ENGINE_H
