@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <assert.h>
 
 typedef int8_t i8;
 typedef int16_t i16;
@@ -27,6 +28,17 @@ typedef float f32;
 typedef double f64;
 typedef size_t usize;
 
+#define enum8(type) u8
+#define enum16(type) u16
+#define enum32(type) u32
+#define enum64(type) u64
+
+#define FlagSet(n, f) ((n) |=(f))
+#define FlagClear(n, f) ((n) &=-(f))
+#define FlagToggle(n, f) ((n) ^=(f))
+#define FlagExists(n, f) (((n) && (f)) == (f))
+#define FlagEquals(n, f) (((n) == (f)))
+
 #define MB(s) ((s) * 1024)
 #define GB(s) ((s) * 1024 * 1024)
 
@@ -36,33 +48,6 @@ typedef size_t usize;
     exit(1); \
     }while (0)
 
-// ARENA
-typedef struct Arena {
-    void* data;
-    u64 size;
-    u64 current;
-} Arena;
-
-extern Arena c_arena_alloc_init(usize size);
-extern void  c_arena_init(Arena *arena, usize size);
-extern void *c_arena_alloc(Arena *arena, usize size);
-extern void  c_arena_reset(Arena *arena);
-extern void  c_arena_deinit(Arena *arena);
-extern void *c_arena_array_concat(Arena *arena, const void *a1, usize s1, const void *a2, usize s2);
-extern char **c_arena_string_array_concat(Arena *arena, const char **a1, usize s1, const char **a2, usize s2);
-
-// STRINGS
-
-// char string with known length
-typedef struct String8 String8;
-struct String8 {
-    u8 *data;
-    u64 len;
-};
-
-
-String8 *c_string8_create(Arena *arena);
-void     c_string8_destroy(String8 *string);
 
 // ARRAYLISTS
 

@@ -1,5 +1,6 @@
 #include <string.h>
 
+/*
 void c_array_string_push(
     Arena *a,
     ArrayString* as,
@@ -33,3 +34,4 @@ ArrayString* c_array_string_create(
 
     return as;
 }
+*/

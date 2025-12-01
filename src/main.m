@@ -5,7 +5,7 @@
 #include "game/game.h"
 
 // C Includes
-#include "core/c_main.c"
+#include "core/core_inc.c"
 #include "platform/platform.c"
 #include "engine/engine.c"
 #include "game/game.c"
