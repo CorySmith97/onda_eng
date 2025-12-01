@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
+#include <stdbool.h>
 
 typedef int8_t i8;
 typedef int16_t i16;
@@ -39,8 +40,13 @@ typedef size_t usize;
 #define FlagExists(n, f) (((n) && (f)) == (f))
 #define FlagEquals(n, f) (((n) == (f)))
 
-#define MB(s) ((s) * 1024)
-#define GB(s) ((s) * 1024 * 1024)
+#define KB(n) (((u64)(n)) << 10)
+#define MB(n) (((u64)(n)) << 20)
+#define GB(n) (((u64)(n)) << 30)
+#define TB(n) (((u64)(n)) << 40)
+#define Thousand(n) ((n)*1000)
+#define Million(n) ((n)*1000000)
+#define Billion(n) ((n)*1000000000)
 
 #define c_panic(fmt) \
     do {    \
@@ -85,10 +91,6 @@ typedef struct ArrayString {
             (a)->len++;                                         \
         }                                                       \
     } while (0);
-
-
-extern ArrayString *c_array_string_create(Arena*, u32);
-extern void         c_array_string_push(Arena*, ArrayString*, const char*);
 
 // LOGGING
 

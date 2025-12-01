@@ -1,3 +1,4 @@
+// @todo:cs this needs to be rewritten to use Arenas.
 unsigned int hash(const char *key) {
     unsigned int hash = 0;
     while (*key) {

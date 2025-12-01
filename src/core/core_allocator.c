@@ -6,7 +6,7 @@ void MemSet(void *ptr, i64 value, u64 size) {
     memset(ptr, value, size);
 }
 
-bool IsPowerOfTwo(u64 align) {
+bool IsPowerOfTwo(u64 x) {
     return (x & (x-1)) == 0;
 }
 
@@ -35,7 +35,7 @@ void ArenaRelease(Arena *arena) {
 }
 
 void *_ArenaPush(Arena *arena, u64 size, u64 alignment, bool clearToZero) {
-    uintptr_t current = arena->data + arena->curr_ptr;
+    uintptr_t current = (uintptr_t)arena->data + arena->curr_ptr;
     uintptr_t offset = AlignForward(current, alignment);
     offset -= (u64)arena->data;
     

@@ -3,6 +3,7 @@
 #include "core_shaders.h"
 
 typedef struct InternalState {
+    Arena *frame_arena;
     Camera *cam;
 } InternalState;
 
@@ -14,7 +15,7 @@ void engine_init() {
 }
 
 void update_camera(Camera *cam) {
-    _is = cam;
+    _is->cam = cam;
 }
 
 // @todo:cs this needs to open file if failed to find in the hashmap.
@@ -101,11 +102,15 @@ Texture *load_spritesheet(const char *path) {
     return t;
 }
 
+Mat4 compute_mvp(Camera *cam) {
+    return c_mat4_identity();
+}
+
 /* The default draw sprite functions will only be compatible with the basic_atlas shader found in 
  * core shaders for the meantime.
 */
 void draw_sprite(Texture *s, Vec2 pos, f32 scale, Color color) {
-    vs_param_t vs_params = {
+    vs_params_t vs_params = {
         .mvp = compute_mvp(_is->cam),
     };
     sg_apply_pipeline(s->pipe);
