@@ -40,7 +40,7 @@ extern Mat4 c_mat4_inv_inv(Mat4 a, Mat4 b);
 extern Mat4 c_mat4_transpose(Mat4 a);
 extern Mat4 c_mat4_transpose_inv(Mat4 a);
 extern Mat4 c_mat4_look_at(Vec3 eye, Vec3 at, Vec3 up);
-extern Mat4 c_mat4_ortho(Vec3 min, Vec3 max);
+Mat4 c_mat4_ortho( f32 left, f32 right, f32 bottom, f32 top, f32 near, f32 far);
 extern Mat4 c_mat4_identity();
 
 

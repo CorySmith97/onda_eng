@@ -11,6 +11,7 @@ static HashMap *textures;
 static InternalState _is = {0};
 
 void engine_init() {
+    LOG(info, "Engine Initialized");
     textures = hashmap_create(sizeof(Texture));
 }
 
@@ -20,7 +21,6 @@ void update_camera(Camera *cam) {
 
 // @todo:cs this needs to open file if failed to find in the hashmap.
 Texture *load_spritesheet(const char *path) {
-    LOG(info, "Trying to load %s", path);
     Texture *t = malloc(sizeof(Texture));
     void *value = hashmap_get(textures, path);
     if (value != NULL) {
@@ -33,6 +33,9 @@ Texture *load_spritesheet(const char *path) {
         LOG(warn, "Failed to load %s", path);
         return NULL;
     }
+
+    t->width = width;
+    t->height = height;
 
     sg_image img = sg_make_image(&(sg_image_desc) {
         .type = SG_IMAGETYPE_2D,
@@ -99,19 +102,51 @@ Texture *load_spritesheet(const char *path) {
 
     hashmap_put(textures, path, t);
 
+    LOG(info, "Loaded texture at: %s", path);
     return t;
 }
 
-Mat4 compute_mvp(Camera *cam) {
-    return c_mat4_identity();
+Mat4 projection(Camera *cam) {
+    f32 halfWidth = sapp_widthf() / 2.0f * cam->zoom_factor;
+    f32 halfHeight = sapp_heightf() / 2.0f * cam->zoom_factor;
+    
+    Mat4 proj = c_mat4_ortho(
+        -1.0, 
+        1.0,
+        -1.0, 
+        1.0, 
+        -1.0, 
+        1.0
+    );
+
+    return proj;
 }
 
+Mat4 view(Camera *cam) {
+    return c_mat4_trans(-cam->pos.x, -cam->pos.y, -cam->pos.z);
+}
+
+Mat4 compute_mvp(Camera *cam) {
+    switch (cam->type) {
+        case CAMERA_2D: {
+            Mat4 proj = projection(cam);
+            Mat4 view_mat = view(cam);
+            Mat4 model = c_mat4_identity();
+            return c_mat4_mul(c_mat4_mul(proj, view_mat), model);
+        } break;
+        default: {}
+    }
+    return c_mat4_identity();
+}
 /* The default draw sprite functions will only be compatible with the basic_atlas shader found in 
  * core shaders for the meantime.
 */
 void draw_sprite(Texture *s, Vec2 pos, f32 scale, Color color) {
+    f32 tWidth = s->width;
+    f32 tHeight = s->height;
     vs_params_t vs_params = {
         .mvp = compute_mvp(_is.cam),
+        .atlas_size = {tWidth, tHeight},
     };
     sg_apply_pipeline(s->pipe);
     sg_apply_bindings(&s->bind);

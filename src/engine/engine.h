@@ -20,6 +20,7 @@ typedef struct Camera {
     Vec3 target;
     Vec3 up;
     f32 fov;
+    f32 zoom_factor;
     CameraTypes type;
 } Camera;
 
@@ -42,6 +43,7 @@ typedef struct Shader {
 } Shader;
 
 typedef struct Texture {
+    i32 width, height;
     sg_bindings bind;
     sg_pipeline pipe;
     sg_image img;

@@ -320,16 +320,19 @@ Mat4 c_mat4_look_at(Vec3 eye, Vec3 at, Vec3 up) {
 // ================================
 //
 
-Mat4 c_mat4_ortho(Vec3 min, Vec3 max) {
+Mat4 c_mat4_ortho(
+    f32 left, f32 right,
+    f32 bottom, f32 top,
+    f32 near, f32 far) {
     Mat4 m = {0};
 
-    m.m[0][0] = 2.f / (max.x - min.x);
-    m.m[1][1] = 2.f / (max.y - min.y);
-    m.m[2][2] = -2.f / (max.z - min.z);
+    m.m[0][0] = 2.f / (right - left);
+    m.m[1][1] = 2.f / (top - bottom);
+    m.m[2][2] = -2.f / (far - near);
 
-    m.m[3][0] = -(max.x + min.x) / (max.x - min.x);
-    m.m[3][1] = -(max.y + min.y) / (max.y - min.y);
-    m.m[3][2] = -(max.z + min.z) / (max.z - min.z);
+    m.m[3][0] = -(right + left) / (right - left);
+    m.m[3][1] = -(top + bottom) / (top - bottom);
+    m.m[3][2] = (far + near) / (far - near);
     m.m[3][3] = 1.f;
 
     return m;
