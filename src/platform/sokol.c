@@ -1,11 +1,15 @@
 #define SOKOL_IMPL
 #define SOKOL_METAL
 #define SOKOL_NO_ENTRY
-#include <sokol_gfx.h>
 #include <sokol_app.h>
+#include <sokol_gfx.h>
 #include <sokol_glue.h>
 #include <sokol_log.h>
-
+#include <sokol_gl.h>
+#define FONTSTASH_IMPLEMENTATION
+#include <fontstash.h>
+#define SOKOL_FONTSTASH_IMPL
+#include <sokol_fontstash.h>
 
 void begin_drawing() {
     sg_begin_pass(&(sg_pass){
@@ -29,6 +33,9 @@ static void sokol_init(void* user_data) {
         .environment = sglue_environment(),
         .logger.func = slog_func,
     });
+    sgl_setup(&(sgl_desc_t){});
+
+    engine_init();
 
     PlatformDesc *usr = user_data;
     usr->init_fn();
@@ -108,5 +115,6 @@ void sokol_event(const sapp_event* ev, void* user_data) {
 }
 
 static void sokol_deinit(void* user_data) {
+    sgl_shutdown();
     sg_shutdown();
 }

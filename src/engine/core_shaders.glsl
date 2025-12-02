@@ -4,20 +4,21 @@
 layout(binding=0) uniform vs_params {
     mat4 mvp;
     vec2 atlas_size;
+    vec4 sprite_rec;
 };
 
 in vec2 position;
 in vec2 uv_coords;
-
-in vec4 sprite_rec;
-in vec4 screen_rect;
 
 
 out vec2 uv;
 
 void main() {
     gl_Position =  mvp * vec4((position), 0.0, 1.0);
-    uv = uv_coords;
+    vec2 atlas_uv_min = sprite_rec.xy / atlas_size;
+    vec2 atlas_uv_max = (sprite_rec.xy + sprite_rec.zw) / atlas_size;
+    
+    uv = atlas_uv_min + uv_coords * (atlas_uv_max - atlas_uv_min);
 }
 @end
 

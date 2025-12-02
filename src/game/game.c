@@ -32,7 +32,11 @@ void frame() {
     }
     update_camera(&cam);
     begin_drawing();
-    draw_sprite(t, (Vec2){0, 0}, 1, (Color){255, 255, 255, 255});
+    drawSpriteEx(t, (Vec2){0, 0}, (Vec2){400, 400}, (Vec2){300, 300}, 0.1, (Color){255, 255, 255, 255});
+
+    beginTextDrawing();
+    drawFps();
+    endTextDrawing();
     end_drawing();
 }
 

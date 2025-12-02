@@ -8,7 +8,6 @@
 
 int app_run(PlatformDesc *desc) {
     LOG(info, "Beginning to run application");
-    engine_init();
     switch (desc->backend) {
         case BACKEND_SOKOL_NATIVE: {
             LOG(info, "Backend selected Sokol Native");
