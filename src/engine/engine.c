@@ -8,14 +8,14 @@ typedef struct InternalState {
 } InternalState;
 
 static HashMap *textures;
-static InternalState *_is;
+static InternalState _is = {0};
 
 void engine_init() {
     textures = hashmap_create(sizeof(Texture));
 }
 
 void update_camera(Camera *cam) {
-    _is->cam = cam;
+    _is.cam = cam;
 }
 
 // @todo:cs this needs to open file if failed to find in the hashmap.
@@ -35,7 +35,7 @@ Texture *load_spritesheet(const char *path) {
     }
 
     sg_image img = sg_make_image(&(sg_image_desc) {
-        .type = SG_IMAGETYPE_ARRAY,
+        .type = SG_IMAGETYPE_2D,
         .width = width,
         .height = height,
         .pixel_format = SG_PIXELFORMAT_RGBA8,
@@ -111,7 +111,7 @@ Mat4 compute_mvp(Camera *cam) {
 */
 void draw_sprite(Texture *s, Vec2 pos, f32 scale, Color color) {
     vs_params_t vs_params = {
-        .mvp = compute_mvp(_is->cam),
+        .mvp = compute_mvp(_is.cam),
     };
     sg_apply_pipeline(s->pipe);
     sg_apply_bindings(&s->bind);

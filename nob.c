@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
     if (!cmd_run_sync(cmd)) return 1;
 
     cmd.count = 0;
-    cmd_append(&cmd, "clang", "-o", "bin/game", "src/main.m");
+    cmd_append(&cmd, "clang", "-o", "bin/game", "src/main.m", "-g");
     cmd_append(&cmd, "-I./src/thirdparty");
     cmd_append(&cmd, "-framework", "Cocoa");
     cmd_append(&cmd, "-framework", "Metal");
