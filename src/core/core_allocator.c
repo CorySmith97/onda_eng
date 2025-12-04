@@ -26,7 +26,8 @@ u64 AlignForward(u64 ptr, u64 align) {
 }
 
 void ArenaClear(Arena *arena) {
-    arena->curr_ptr = 0;
+    arena->curr_ptr = (uintptr_t)arena->data;
+    arena->prev_ptr = (uintptr_t)arena->data;
 }
 
 void ArenaRelease(Arena *arena) {
@@ -35,26 +36,43 @@ void ArenaRelease(Arena *arena) {
 }
 
 void *_ArenaPush(Arena *arena, u64 size, u64 alignment, bool clearToZero) {
-    uintptr_t current = (uintptr_t)arena->data + arena->curr_ptr;
-    uintptr_t offset = AlignForward(current, alignment);
-    offset -= (u64)arena->data;
-    
+    // Initialize arena if needed
     if (arena->reserved == 0) {
+        LOG(info, "Allocating inital storage: %llu", DefaultArenaSize);
         arena->data = malloc(DefaultArenaSize);
         arena->reserved = DefaultArenaSize;
+        arena->curr_ptr = 0;
+        arena->prev_ptr = 0;
+        arena->len = 0;
     }
-
-    if (offset+size <= arena->reserved) {
-        void *ptr = &arena->data[offset];
-        arena->prev_ptr = (u64)offset;
-        arena->curr_ptr = (u64)offset+size;
-
-        MemSet(ptr, 0, size);
-        return ptr;
-    } else {
+    
+    // Calculate aligned offset from current position
+    uintptr_t current = (uintptr_t)arena->data + arena->curr_ptr;
+    uintptr_t aligned = AlignForward(current, alignment);
+    u64 offset = aligned - (uintptr_t)arena->data;
+    
+    // Check if we have enough space
+    if (offset + size > arena->reserved) {
+        LOG(error, "Failing to get data");
         // @todo:cs add a resize feature
         return NULL;
     }
+    
+    void *ptr = &arena->data[offset];
+    
+    // Update pointers
+    arena->prev_ptr = arena->curr_ptr;  // Save previous position
+    arena->curr_ptr = offset + size;     // Update to end of new allocation
+    arena->len += size;
+    LOG(info, "Allocating: %llu", size);
+    
+    // Optionally clear memory
+    if (clearToZero) {
+        MemSet(ptr, 0, size);
+    }
+    LOG(info, "Ptr: %p", ptr);
+    
+    return ptr;
 }
 
 #ifdef DEBUG

@@ -11,21 +11,6 @@
 #define SOKOL_FONTSTASH_IMPL
 #include <sokol_fontstash.h>
 
-void begin_drawing() {
-    sg_begin_pass(&(sg_pass){
-        .action = {
-            .colors[0] = {
-                .load_action = SG_LOADACTION_CLEAR, .clear_value = { 0.25f, 0.5f, 0.7f, 1.0f }
-            }
-        },
-        .swapchain = sglue_swapchain()
-    });
-}
-void end_drawing(){
-    sg_end_pass();
-    sg_commit();
-
-}
 
 static void sokol_init(void* user_data) {
     //LOG(info, "Backend selected Sokol Native");

@@ -4,20 +4,21 @@
 layout(binding=0) uniform vs_params {
     mat4 mvp;
     vec2 atlas_size;
-    vec4 sprite_rec;
 };
 
 in vec2 position;
 in vec2 uv_coords;
+in vec3 sprite_pos;
+in vec4 sprite_rec;
 
 
 out vec2 uv;
 
 void main() {
-    gl_Position =  mvp * vec4((position), 0.0, 1.0);
+    vec2 pos = position * sprite_pos.z + sprite_pos.xy;
+    gl_Position = mvp * vec4(pos, 0.0, 1.0);
     vec2 atlas_uv_min = sprite_rec.xy / atlas_size;
     vec2 atlas_uv_max = (sprite_rec.xy + sprite_rec.zw) / atlas_size;
-    
     uv = atlas_uv_min + uv_coords * (atlas_uv_max - atlas_uv_min);
 }
 @end
@@ -30,7 +31,8 @@ in vec2 uv;
 out vec4 frag_color;
 
 void main() {
-     frag_color = texture(sampler2D(tex2d, smp), uv);
+    vec4 uv =  texture(sampler2D(tex2d, smp), uv);
+    frag_color = uv; 
 }
 @end
 

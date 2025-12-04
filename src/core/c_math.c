@@ -332,7 +332,7 @@ Mat4 c_mat4_ortho(
 
     m.m[3][0] = -(right + left) / (right - left);
     m.m[3][1] = -(top + bottom) / (top - bottom);
-    m.m[3][2] = (far + near) / (far - near);
+    m.m[3][2] = -(far + near) / (far - near);
     m.m[3][3] = 1.f;
 
     return m;

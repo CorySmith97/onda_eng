@@ -95,3 +95,17 @@ void hashmap_destroy(HashMap *map) {
     free(map);
 }
 
+size_t hashmap_keys(HashMap *map, const char **out_keys, size_t max_keys) {
+    size_t count = 0;
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        Entry *entry = map->buckets[i];
+        while (entry) {
+            if (count < max_keys) {
+                out_keys[count++] = entry->key;  // pointer to internal strdup'd key
+            }
+            entry = entry->next;
+        }
+    }
+    return count;
+}
+

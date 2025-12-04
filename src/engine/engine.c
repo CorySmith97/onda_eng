@@ -2,6 +2,8 @@
 #include <stb_image.h>
 #include "core_shaders.h"
 
+#define MAXSPRITESINBATCH 1000
+
 typedef struct InternalState {
     Arena *frame_arena;
     Camera *cam;
@@ -44,6 +46,11 @@ Texture *load_spritesheet(const char *path) {
         return NULL;
     }
 
+    t->sprites = malloc(sizeof(ArraySprite));
+    t->sprites->len = 0;
+    t->sprites->capacity = 100;
+    t->sprites->data = malloc(sizeof(Sprite) * 100);
+
     t->width = width;
     t->height = height;
 
@@ -67,8 +74,8 @@ Texture *load_spritesheet(const char *path) {
 
     // a sampler object
     sg_sampler smp = sg_make_sampler(&(sg_sampler_desc){
-        .min_filter = SG_FILTER_LINEAR,
-        .mag_filter = SG_FILTER_LINEAR,
+        .min_filter = SG_FILTER_NEAREST,
+        .mag_filter = SG_FILTER_NEAREST,
         .label = "sampler",
     });
 
@@ -87,6 +94,10 @@ Texture *load_spritesheet(const char *path) {
     sg_buffer vbuf = sg_make_buffer(&(sg_buffer_desc){
         .data = SG_RANGE(verts),
     });
+    sg_buffer streambuf = sg_make_buffer(&(sg_buffer_desc){
+        .usage.stream_update = true,
+        .size = sizeof(Sprite) * MAXSPRITESINBATCH,
+    });
     sg_buffer ibuf = sg_make_buffer(&(sg_buffer_desc) {
         .usage.index_buffer = true,
         .data = SG_RANGE(indices),
@@ -94,17 +105,30 @@ Texture *load_spritesheet(const char *path) {
 
     t->pipe = sg_make_pipeline(&(sg_pipeline_desc){
         .layout = {
+            .buffers[1].step_func = SG_VERTEXSTEP_PER_INSTANCE,
             .attrs = {
-                [ATTR_basic_atlas_position].format = SG_VERTEXFORMAT_FLOAT2,
-                [ATTR_basic_atlas_uv_coords].format = SG_VERTEXFORMAT_FLOAT2,
+                [ATTR_basic_atlas_position] ={ .format = SG_VERTEXFORMAT_FLOAT2, .buffer_index = 0},
+                [ATTR_basic_atlas_uv_coords] = {.format = SG_VERTEXFORMAT_FLOAT2, .buffer_index = 0},
+                [ATTR_basic_atlas_sprite_pos] = { .format = SG_VERTEXFORMAT_FLOAT3, .buffer_index = 1},
+                [ATTR_basic_atlas_sprite_rec] = { .format = SG_VERTEXFORMAT_FLOAT4, .buffer_index = 1},
             },
         },
         .shader = sg_make_shader(basic_atlas_shader_desc(sg_query_backend())),
         .index_type = SG_INDEXTYPE_UINT16,
+        .colors[0].blend = {
+            .enabled = true,
+            .src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA,
+            .dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+            .op_rgb = SG_BLENDOP_ADD,
+            .src_factor_alpha = SG_BLENDFACTOR_ONE,
+            .dst_factor_alpha = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+            .op_alpha = SG_BLENDOP_ADD,
+        },
     });
 
     t->bind = (sg_bindings) {
         .vertex_buffers[0] = vbuf,
+        .vertex_buffers[1] = streambuf,
         .index_buffer = ibuf,
         .views[VIEW_tex2d] = tex_view,
         .samplers[SMP_smp] = smp,
@@ -117,26 +141,35 @@ Texture *load_spritesheet(const char *path) {
 }
 
 Mat4 projection(Camera *cam) {
-    f32 halfWidth = sapp_widthf() / 2.0f * cam->zoom_factor;
-    f32 halfHeight = sapp_heightf() / 2.0f * cam->zoom_factor;
+    f32 halfWidth = sapp_widthf() / 2.0 * cam->zoom_factor;
+    f32 halfHeight = sapp_heightf() / 2.0 * cam->zoom_factor;
     
     Mat4 proj = c_mat4_ortho(
-        0, 
-        1,
-        0.0, 
-        1,
+        -halfWidth,
+        halfWidth,
+        -halfHeight, 
+        halfHeight, 
         -1.0, 
         1.0
     );
+    //Mat4 proj = c_mat4_ortho(
+    //    0.0, 
+    //    1.0,
+    //    0.0, 
+    //    1.0,
+    //    -1.0, 
+    //    1.0
+    //);
 
     return proj;
 }
 
+//             .view = math.Mat4.translate(.{ .x = -150, .y = -100, .z = 0 }),
 Mat4 view(Camera *cam) {
     return c_mat4_trans(cam->pos.x, cam->pos.y, cam->pos.z);
 }
 
-Mat4 compute_mvp(Camera *cam, f32 scalar) {
+Mat4 compute_mvp(Camera *cam) {
     switch (cam->type) {
         case CAMERA_2D: {
             Mat4 proj = projection(cam);
@@ -160,56 +193,123 @@ void endTextDrawing() {
     sgl_draw();
 }
 
+void fonsPrintf(FONScontext* fs, float x, float y, const char* fmt, ...) {
+    char buffer[1024];
+
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_end(args);
+
+    fonsDrawText(fs, x, y, buffer, NULL);
+}
+
 void drawFps() {
     float dx = 10, dy = 0;
     u32 white = sfons_rgba(255,255,255,255);
     u32 brown = sfons_rgba(192,128,0,128);
 
     fonsSetFont(fons_context, font);
-    fonsSetSize(fons_context, 124.0f);
-    fonsSetColor(fons_context, white);
-    fonsDrawText(fons_context, dx,dy + 124,"The big ", NULL);
-
     fonsSetSize(fons_context, 24.0f);
-    fonsSetColor(fons_context, brown);
-    fonsDrawText(fons_context, dx,dy,"brown fox", NULL);
+    fonsSetColor(fons_context, white);
+    fonsPrintf(fons_context, dx, 100, "%f.1", 1 / sapp_frame_duration());
 }
 
 /* The default draw sprite functions will only be compatible with the basic_atlas shader found in 
  * core shaders for the meantime.
 */
-void draw_sprite(Texture *s, Vec2 pos, f32 scale, Color color) {
+void drawSprite(Texture *s, Vec2 pos, f32 scale, Color color) {
+    // Append to the list
     f32 tWidth = s->width;
     f32 tHeight = s->height;
 
-    Mat4 model = c_mat4_scale(scale, scale, scale);
-    vs_params_t vs_params = {
-        .mvp = c_mat4_mul(compute_mvp(_is.cam, scale), model),
-        .atlas_size = {tWidth, tHeight},
-        .sprite_rec = {pos.x, pos.y, tWidth, tHeight},
-    };
-    sg_apply_pipeline(s->pipe);
-    sg_apply_bindings(&s->bind);
-    sg_apply_uniforms(UB_vs_params, &SG_RANGE(vs_params));
-    sg_draw(0, 6, 1);
+    Sprite sprite = (Sprite){{pos.x, pos.y, scale}, {0, 0, tWidth, tHeight}};
+    array_push(s->sprites, sprite);
+
+    //Mat4 T = c_mat4_trans(pos.x, pos.y, 0.0f);
+    //Mat4 S = c_mat4_scale(scale, scale, 1.0f);
+    //Mat4 model = c_mat4_mul(T, S);
+    //vs_params_t vs_params = {
+    //    .mvp = c_mat4_mul(compute_mvp(_is.cam, scale), model),
+    //    .atlas_size = {tWidth, tHeight},
+    //    .sprite_rec = {pos.x, pos.y, tWidth, tHeight},
+    //};
+    //sg_apply_pipeline(s->pipe);
+    //sg_apply_bindings(&s->bind);
+    //sg_apply_uniforms(UB_vs_params, &SG_RANGE(vs_params));
+    //sg_draw(0, 6, 1);
 }
 
 //void draw_sprite_ex(Texture s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, Color color);
 void drawSpriteEx( Texture *s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, Color color) {
     f32 tWidth = s->width;
     f32 tHeight = s->height;
-    Mat4 model = c_mat4_scale(scale, scale, 1.0);
-    vs_params_t vs_params = {
-        .mvp = c_mat4_mul(compute_mvp(_is.cam, scale), model),
-        .atlas_size = {tWidth, tHeight},
-        .sprite_rec = {src.x, src.y, src.x + size.x, src.y + size.y},
-    };
-    sg_apply_pipeline(s->pipe);
-    sg_apply_bindings(&s->bind);
-    sg_apply_uniforms(UB_vs_params, &SG_RANGE(vs_params));
-    sg_draw(0, 6, 1);
+
+    Sprite sprite = (Sprite){{pos.x, pos.y, scale}, {tWidth - src.x, tHeight - src.y - size.y, src.x + size.x, src.y + size.y}};
+    array_push(s->sprites, sprite);
+
+
+    //Mat4 T = c_mat4_trans(pos.x, pos.y, 0.0f);
+    //Mat4 S = c_mat4_scale(scale, scale, 1.0f);
+    //Mat4 model = c_mat4_mul(T, S);
+
+    //vs_params_t vs_params = {
+    //    .mvp = c_mat4_mul(compute_mvp(_is.cam, scale), model),
+    //    .atlas_size = {tWidth, tHeight},
+    //    .sprite_rec = {src.x, src.y, src.x + size.x, src.y + size.y},
+    //};
+    //sg_apply_pipeline(s->pipe);
+    //sg_apply_bindings(&s->bind);
+    //sg_apply_uniforms(UB_vs_params, &SG_RANGE(vs_params));
+    //sg_draw(0, 6, 1);
 }
 
 //void draw_sprite_ex(Texture s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, f32 rotation, Color color);
 
 void update_camera(Camera *cam);
+
+
+void begin_drawing() {
+    sg_begin_pass(&(sg_pass){
+        .action = {
+            .colors[0] = {
+                .load_action = SG_LOADACTION_CLEAR, .clear_value = { 0.25f, 0.5f, 0.7f, 1.0f }
+            }
+        },
+        .swapchain = sglue_swapchain()
+    });
+}
+void end_drawing(){
+    const char *keys[256];
+    size_t count = hashmap_keys(textures, keys, 256);
+    for (size_t i = 0; i < count; i++) {
+        Texture *t = hashmap_get(textures, keys[i]);
+
+
+        Sprite s = t->sprites->data[0];
+        //LOG(info, "Sprite: %f %f %f", s.pos.x, s.pos.y, s.pos.z);
+
+        f32 tWidth = t->width;
+        f32 tHeight = t->height;
+        vs_params_t vs_params = {
+            .mvp = c_mat4_mul(compute_mvp(_is.cam), c_mat4_identity()),
+            .atlas_size = {tWidth, tHeight},
+        };
+        sg_update_buffer(t->bind.vertex_buffers[1], &(sg_range){
+            .ptr = t->sprites->data,
+            .size = t->sprites->len * sizeof(Sprite),
+        });
+        sg_apply_pipeline(t->pipe);
+        sg_apply_bindings(&t->bind);
+        sg_apply_uniforms(UB_vs_params, &SG_RANGE(vs_params));
+        sg_draw(0, 6, t->sprites->len);
+    }
+
+    sg_end_pass();
+    sg_commit();
+
+    for (size_t i = 0; i < count; i++) {
+        Texture *t = hashmap_get(textures, keys[i]);
+        t->sprites->len = 0;
+    }
+}

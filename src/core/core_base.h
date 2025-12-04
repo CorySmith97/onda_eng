@@ -57,6 +57,11 @@ typedef size_t usize;
 
 // ARRAYLISTS
 
+typedef struct ArrayHeader {
+    u32 len;
+    u32 capacity;
+} ArrayHeader;
+
 typedef struct ArrayI32 {
     i32* data;
     u32 len;
@@ -80,7 +85,7 @@ typedef struct ArrayString {
 
 #define array_push(a, v)                                        \
     do {                                                        \
-        if (((a)->len + 1 < (a)->capacity)) {                   \
+        if (((a)->len + 1 < (a)->capacity)) {               \
             (a)->data[(a)->len] = v;                            \
             (a)->len += 1;                                      \
         } else {                                                \

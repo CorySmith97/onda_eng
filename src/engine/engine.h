@@ -42,6 +42,28 @@ typedef struct Shader {
 	i32 id;
 } Shader;
 
+typedef struct OndaFont {
+    char *name;
+    i32 id;
+} OndaFont;
+
+typedef struct ArrayOndaFonts {
+    ArrayHeader _;
+    OndaFont *data;
+} ArrayOndaFonts;
+
+typedef struct Sprite {
+    Vec3 pos;
+    Vec4 rec;
+    //Vec4 color;
+} Sprite;
+
+typedef struct ArraySprite {
+    u32 len;
+    u32 capacity;
+    Sprite *data;
+} ArraySprite;
+
 typedef struct Texture {
     i32 width, height;
     sg_bindings bind;
@@ -49,6 +71,7 @@ typedef struct Texture {
     sg_image img;
     sg_view view;
     sg_sampler smp;
+    ArraySprite *sprites;
 } Texture;
 
 typedef struct Mesh {
@@ -56,10 +79,6 @@ typedef struct Mesh {
 
 typedef struct Model {
 } Model;
-
-typedef struct Sprite {
-    u32 id;
-} Sprite;
 
 typedef struct Color {
     u8 r, g, b, a;

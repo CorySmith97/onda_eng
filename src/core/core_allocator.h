@@ -2,6 +2,7 @@
 // ARENA
 typedef struct Arena {
     u64 reserved;
+    u64 len;
     u64 prev_ptr;
     u64 curr_ptr;
     void* data;
@@ -11,13 +12,14 @@ typedef struct Arena {
 #define DefaultAlignment (2*sizeof(void*))
 #define DefaultArenaSize MB((1))
 
-#define ArenaPush(arena, size) _ArenaPush(arena, size, DefaultAlignment, true)
-#define ArenaPushStruct(arena, type) ((type*))_ArenaPush(arena, sizeof(type), alignof(type), true)
-#define ArenaPushArray(arena, count, type) ((type*))_ArenaPush(arena, (count) * sizeof(type), DefaultAlignment, true)
-
 void ArenaClear(Arena *arena);
 void ArenaRelease(Arena *arena);
 void *_ArenaPush(Arena *arena, u64 size, u64 alignment, bool clearToZero);
+
+#define ArenaPush(arena, size) _ArenaPush(arena, size, DefaultAlignment, true)
+#define ArenaPushStruct(arena, type) ((type*) _ArenaPush(arena, sizeof(type), alignof(type), true))
+#define ArenaPushArray(arena, count, type) ((type*) _ArenaPush(arena, (count) * sizeof(type), DefaultAlignment, true))
+
 
 /*
 Arena arena_alloc_init(usize size);
