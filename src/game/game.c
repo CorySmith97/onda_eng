@@ -23,7 +23,7 @@ void init() {
         .target = {0, 0, 0},
         .fov = 45,
         .type = CAMERA_2D,
-        .zoom_factor = 0.25,
+        .zoom_factor = 0.05,
     };
     for (int i = 0; i < 100; i++) {
         grid[i] = (Tile){tile_grass};
@@ -32,28 +32,28 @@ void init() {
 
 void frame() {
     if (isKeyPressed(KEY_L)) {
-        cam.zoom_factor += 0.05;
+        cam.zoom_factor += 0.005;
     }
     if (isKeyPressed(KEY_K)) {
-        cam.zoom_factor += 0.05;
+        cam.zoom_factor -= 0.005;
     }
     if (isKeyPressed(KEY_W)) {
-        cam.pos.y += 0.01 / cam.zoom_factor;
+        cam.pos.y -= 0.001 / cam.zoom_factor;
     }
     if (isKeyPressed(KEY_S)) {
-        cam.pos.y -= 0.01/ cam.zoom_factor;
+        cam.pos.y += 0.001/ cam.zoom_factor;
     }
     if (isKeyPressed(KEY_D)) {
-        cam.pos.x += 0.01/ cam.zoom_factor;
+        cam.pos.x -= 0.001/ cam.zoom_factor;
     }
     if (isKeyPressed(KEY_A)) {
-        cam.pos.x -= 0.01/ cam.zoom_factor;
+        cam.pos.x += 0.001/ cam.zoom_factor;
     }
     update_camera(&cam);
     begin_drawing();
     //drawSprite(t, (Vec2){10, 10}, 0.1, (Color){255, 255, 255, 255});
     for (int i = 0; i < 100; i++) {
-        drawSpriteEx(t, (Vec2){i + 32, 0}, (Vec2){0, 0}, (Vec2){32, 32}, 10, (Color){255, 255, 255, 255});
+        drawSpriteEx(t, (Vec2){((i / 10) + 32), ((i % 10) + 32)}, (Vec2){0, 0}, (Vec2){32, 32}, 1, (Color){255, 255, 255, 255});
     }
 
     beginTextDrawing();

@@ -32,7 +32,7 @@ void update_camera(Camera *cam) {
 
 // @todo:cs this needs to open file if failed to find in the hashmap.
 Texture *load_spritesheet(const char *path) {
-    Texture *t = malloc(sizeof(Texture));
+    Texture *t = imalloc(sizeof(Texture));
     void *value = hashmap_get(textures, path);
     if (value != NULL) {
         return (Texture*)value;
@@ -46,10 +46,10 @@ Texture *load_spritesheet(const char *path) {
         return NULL;
     }
 
-    t->sprites = malloc(sizeof(ArraySprite));
+    t->sprites = imalloc(sizeof(ArraySprite));
     t->sprites->len = 0;
     t->sprites->capacity = 100;
-    t->sprites->data = malloc(sizeof(Sprite) * 100);
+    t->sprites->data = imalloc(sizeof(Sprite) * 100);
 
     t->width = width;
     t->height = height;
@@ -152,19 +152,10 @@ Mat4 projection(Camera *cam) {
         -1.0, 
         1.0
     );
-    //Mat4 proj = c_mat4_ortho(
-    //    0.0, 
-    //    1.0,
-    //    0.0, 
-    //    1.0,
-    //    -1.0, 
-    //    1.0
-    //);
 
     return proj;
 }
 
-//             .view = math.Mat4.translate(.{ .x = -150, .y = -100, .z = 0 }),
 Mat4 view(Camera *cam) {
     return c_mat4_trans(cam->pos.x, cam->pos.y, cam->pos.z);
 }
@@ -226,18 +217,6 @@ void drawSprite(Texture *s, Vec2 pos, f32 scale, Color color) {
     Sprite sprite = (Sprite){{pos.x, pos.y, scale}, {0, 0, tWidth, tHeight}};
     array_push(s->sprites, sprite);
 
-    //Mat4 T = c_mat4_trans(pos.x, pos.y, 0.0f);
-    //Mat4 S = c_mat4_scale(scale, scale, 1.0f);
-    //Mat4 model = c_mat4_mul(T, S);
-    //vs_params_t vs_params = {
-    //    .mvp = c_mat4_mul(compute_mvp(_is.cam, scale), model),
-    //    .atlas_size = {tWidth, tHeight},
-    //    .sprite_rec = {pos.x, pos.y, tWidth, tHeight},
-    //};
-    //sg_apply_pipeline(s->pipe);
-    //sg_apply_bindings(&s->bind);
-    //sg_apply_uniforms(UB_vs_params, &SG_RANGE(vs_params));
-    //sg_draw(0, 6, 1);
 }
 
 //void draw_sprite_ex(Texture s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, Color color);
@@ -247,27 +226,11 @@ void drawSpriteEx( Texture *s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, Color c
 
     Sprite sprite = (Sprite){{pos.x, pos.y, scale}, {tWidth - src.x, tHeight - src.y - size.y, src.x + size.x, src.y + size.y}};
     array_push(s->sprites, sprite);
-
-
-    //Mat4 T = c_mat4_trans(pos.x, pos.y, 0.0f);
-    //Mat4 S = c_mat4_scale(scale, scale, 1.0f);
-    //Mat4 model = c_mat4_mul(T, S);
-
-    //vs_params_t vs_params = {
-    //    .mvp = c_mat4_mul(compute_mvp(_is.cam, scale), model),
-    //    .atlas_size = {tWidth, tHeight},
-    //    .sprite_rec = {src.x, src.y, src.x + size.x, src.y + size.y},
-    //};
-    //sg_apply_pipeline(s->pipe);
-    //sg_apply_bindings(&s->bind);
-    //sg_apply_uniforms(UB_vs_params, &SG_RANGE(vs_params));
-    //sg_draw(0, 6, 1);
 }
 
 //void draw_sprite_ex(Texture s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, f32 rotation, Color color);
 
 void update_camera(Camera *cam);
-
 
 void begin_drawing() {
     sg_begin_pass(&(sg_pass){

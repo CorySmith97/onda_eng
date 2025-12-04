@@ -20,6 +20,14 @@ void *_ArenaPush(Arena *arena, u64 size, u64 alignment, bool clearToZero);
 #define ArenaPushStruct(arena, type) ((type*) _ArenaPush(arena, sizeof(type), alignof(type), true))
 #define ArenaPushArray(arena, count, type) ((type*) _ArenaPush(arena, (count) * sizeof(type), DefaultAlignment, true))
 
+void *_dMalloc(size_t size, const char *file, uint32_t line);
+void _dFree(void *ptr, const char *file, uint32_t line);
+
+#ifdef DEBUG
+#   define imalloc(size) _dMalloc(size, __FILE__, __LINE__)
+#   define ifree(ptr) _dFree(ptr, __FILE__, __LINE__)
+#endif // DEBUG
+
 
 /*
 Arena arena_alloc_init(usize size);

@@ -11,6 +11,7 @@ int main(int argc, char** argv) {
 
     cmd.count = 0;
     cmd_append(&cmd, "clang", "-std=c23", "-o", "bin/game", "src/main.m", "-g");
+    cmd_append(&cmd, "-D DEBUG");
     cmd_append(&cmd, "-I./src/thirdparty");
     cmd_append(&cmd, "-framework", "Cocoa");
     cmd_append(&cmd, "-framework", "Metal");

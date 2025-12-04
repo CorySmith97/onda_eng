@@ -2,6 +2,32 @@
 /*
  * Global Allocator Interface
  */
+typedef struct Allocation {
+    size_t size; 
+    const char *file;
+    uint32_t line;
+} Allocation;
+
+typedef struct ArrayAllocation {
+    u32 len;
+    u32 capacity;
+    Allocation data[1];
+} ArrayAllocation;
+
+typedef struct AllocatorTracker {
+    u64 total_bytes_allocated;
+    ArrayAllocation allocations;
+} AllocatorTracker;
+
+void *_dMalloc(size_t size, const char *file, uint32_t line) {
+    LOG(info, "Allocating %zu bytes. File: %s : %u", size, file, line);
+    return malloc(size);
+}
+void _dFree(void *ptr, const char *file, uint32_t line) {
+    LOG(info, "Freeing bytes. File: %s : %u", file, line);
+    return free(ptr);
+}
+
 void MemSet(void *ptr, i64 value, u64 size) {
     memset(ptr, value, size);
 }
@@ -39,7 +65,7 @@ void *_ArenaPush(Arena *arena, u64 size, u64 alignment, bool clearToZero) {
     // Initialize arena if needed
     if (arena->reserved == 0) {
         LOG(info, "Allocating inital storage: %llu", DefaultArenaSize);
-        arena->data = malloc(DefaultArenaSize);
+        arena->data = imalloc(DefaultArenaSize);
         arena->reserved = DefaultArenaSize;
         arena->curr_ptr = 0;
         arena->prev_ptr = 0;
@@ -75,11 +101,11 @@ void *_ArenaPush(Arena *arena, u64 size, u64 alignment, bool clearToZero) {
     return ptr;
 }
 
-#ifdef DEBUG
-TrackingAllocator GLOBAL_ALLOCATOR;
-#else
-PageAllocator GLOBAL_ALLOCATOR;
-#endif
+//#ifdef DEBUG
+//TrackingAllocator GLOBAL_ALLOCATOR;
+//#else
+//PageAllocator GLOBAL_ALLOCATOR;
+//#endif
 
 
 void *paalloc(PageAllocator*, size_t);
