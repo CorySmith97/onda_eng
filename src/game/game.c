@@ -9,10 +9,11 @@ typedef struct Tile {
 } Tile;
 
 static GameState *s;
-Tile grid[100];
+Tile grid[10][10];
 
 Texture *t;
 Camera cam;
+f32 delta = 0.75;
 
 void init() {
     t = load_spritesheet("data/masterspritesheet.png");
@@ -23,14 +24,22 @@ void init() {
         .target = {0, 0, 0},
         .fov = 45,
         .type = CAMERA_2D,
-        .zoom_factor = 0.05,
+        .zoom_factor = 0.01,
     };
-    for (int i = 0; i < 100; i++) {
-        grid[i] = (Tile){tile_grass};
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; i < 10; i++) {
+        grid[i][j] = (Tile){tile_grass};
+        }
     }
 }
 
 void frame() {
+    if (isKeyPressed(KEY_M)) {
+        delta += 0.005;
+    }
+    if (isKeyPressed(KEY_N)) {
+        delta -= 0.005;
+    }
     if (isKeyPressed(KEY_L)) {
         cam.zoom_factor += 0.005;
     }
@@ -51,12 +60,29 @@ void frame() {
     }
     update_camera(&cam);
     begin_drawing();
-    //drawSprite(t, (Vec2){10, 10}, 0.1, (Color){255, 255, 255, 255});
-    for (int i = 0; i < 100; i++) {
-        drawSpriteEx(t, (Vec2){((i / 10) + 32), ((i % 10) + 32)}, (Vec2){0, 0}, (Vec2){32, 32}, 1, (Color){255, 255, 255, 255});
+    float origin_x = 0.0f;
+    float origin_y = 0.0f;
+    float tile_w_world = 1.0f; 
+    float tile_h_world = 1.0f;
+
+    for (int j = 0; j < 10; j++) {
+        for (int i = 0; i < 10; i++) {
+            float sx = origin_x + (float)(i - j) * (tile_w_world * 0.5f);
+            float sy = origin_y + (float)(i + j) * (tile_h_world * 0.5f - delta);
+
+            drawSpriteEx(
+                t,
+                (Vec2){ sx, sy },
+                (Vec2){ 0, 0 }, 
+                (Vec2){ 32, 32 },
+                1.0f,
+                (Color){ 255, 255, 255, 255 }
+            );
+        }
     }
 
     beginTextDrawing();
+    drawCameraCoords(&cam);
     drawFps();
     endTextDrawing();
     end_drawing();

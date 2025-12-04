@@ -15,8 +15,8 @@ in vec4 sprite_rec;
 out vec2 uv;
 
 void main() {
-    vec2 pos = position * sprite_pos.z + sprite_pos.xy;
-    gl_Position = mvp * vec4(pos, 0.0, 1.0);
+    vec2 pos = position + sprite_pos.xy;
+    gl_Position = mvp * vec4(pos * sprite_pos.z, 0.0, 1.0);
     vec2 atlas_uv_min = sprite_rec.xy / atlas_size;
     vec2 atlas_uv_max = (sprite_rec.xy + sprite_rec.zw) / atlas_size;
     uv = atlas_uv_min + uv_coords * (atlas_uv_max - atlas_uv_min);

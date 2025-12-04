@@ -195,6 +195,17 @@ void fonsPrintf(FONScontext* fs, float x, float y, const char* fmt, ...) {
     fonsDrawText(fs, x, y, buffer, NULL);
 }
 
+void drawCameraCoords(Camera *cam) {
+    float dx = 10, dy = 10;
+    u32 white = sfons_rgba(255,255,255,255);
+    u32 brown = sfons_rgba(192,128,0,128);
+
+    fonsSetFont(fons_context, font);
+    fonsSetSize(fons_context, 24.0f);
+    fonsSetColor(fons_context, white);
+    fonsPrintf(fons_context, dx, dy, "%f, %f, %f", cam->pos.x, cam->pos.y, cam->pos.z);
+}
+
 void drawFps() {
     float dx = 10, dy = 0;
     u32 white = sfons_rgba(255,255,255,255);
