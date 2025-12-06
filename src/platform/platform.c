@@ -29,6 +29,7 @@ int app_run(PlatformDesc *desc) {
 }
 
 static KeyboardState keyboard_state;
+static MouseState mouse_state;
 
 bool isKeyPressed(int key) {
     bool pressed = false;

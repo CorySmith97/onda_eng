@@ -30,6 +30,19 @@ typedef struct KeyboardState {
     bool key_pressed[MAX_KEYS];
 } KeyboardState;
 
+typedef struct MouseState {
+    f32 mouse_pos_x;
+    f32 mouse_pos_y;
+    bool mouse_button_state;
+} MouseState;
+
+typedef enum {
+    MOUSEBUTTON_LEFT = 0x0,
+    MOUSEBUTTON_RIGHT = 0x1,
+    MOUSEBUTTON_MIDDLE = 0x2,
+    MOUSEBUTTON_INVALID = 0x100,
+} MouseCode;
+
 typedef enum {
     KEY_INVALID          = 0,
     KEY_SPACE            = 32,

@@ -140,6 +140,9 @@ Texture *load_spritesheet(const char *path) {
     return t;
 }
 
+Vec2 mouseToWorldPosition(Vec2 mouse) {
+}
+
 Mat4 projection(Camera *cam) {
     f32 halfWidth = sapp_widthf() / 2.0 * cam->zoom_factor;
     f32 halfHeight = sapp_heightf() / 2.0 * cam->zoom_factor;
