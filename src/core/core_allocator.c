@@ -11,7 +11,7 @@ typedef struct Allocation {
 typedef struct ArrayAllocation {
     u32 len;
     u32 capacity;
-    Allocation data[1];
+    Allocation *data;
 } ArrayAllocation;
 
 typedef struct AllocatorTracker {
@@ -19,8 +19,17 @@ typedef struct AllocatorTracker {
     ArrayAllocation allocations;
 } AllocatorTracker;
 
+static AllocatorTracker global_allocations;
+
 void *_dMalloc(size_t size, const char *file, uint32_t line) {
-    LOG(info, "Allocating %zu bytes. File: %s : %u", size, file, line);
+    LOG(info, "Allocating %zu bytes. File: %s:%u", size, file, line);
+    Allocation alloc = {
+        .size = size,
+        .file = file,
+        .line = line,
+    };
+    array_push(&global_allocations.allocations, alloc);
+    global_allocations.total_bytes_allocated += size;
     return malloc(size);
 }
 void _dFree(void *ptr, const char *file, uint32_t line) {

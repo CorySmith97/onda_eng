@@ -9,10 +9,14 @@ typedef struct InternalState {
     Camera *cam;
 } InternalState;
 
+/* STATIC VARS */
+
 static HashMap *textures;
 static InternalState _is = {0};
 FONScontext* fons_context;
 int font;
+
+/* STATE FUNCTIONS */
 
 void engineInit() {
     LOG(info, "Engine Initialized");
@@ -25,6 +29,10 @@ void engineInit() {
 
     font = fonsAddFont(fons_context, "sans", "data/fonts/Cyber_Time.ttf");
 }
+
+
+/* UTIL FUNCTIONS */
+
 
 void update_camera(Camera *cam) {
     _is.cam = cam;
@@ -140,7 +148,29 @@ Texture *loadSpritesheet(const char *path) {
     return t;
 }
 
-Vec2 mouseToWorldPosition(Vec2 mouse) {
+/* CAMERA */
+
+Vec2 mouseToWorldPosition(Camera cam, Vec2 mouse) {
+    float screen_w = sapp_widthf();
+    float screen_h = sapp_heightf();
+
+    // how much of the world we see
+    float half_w = screen_w * 0.5f * cam.zoom_factor;
+    float half_h = screen_h * 0.5f * cam.zoom_factor;
+
+    // convert mouse from pixel coords → normalized 0..1
+    float nx = mouse.x / screen_w;
+    float ny = mouse.y / screen_h;
+
+    // convert to NDC (clip space): -1 .. +1
+    float ndc_x = nx * 2.0f - 1.0f;
+    float ndc_y = 1.0f - ny * 2.0f; // flip because screen Y grows downward
+
+    // convert NDC -> world
+    float world_x = cam.pos.x + ndc_x * half_w;
+    float world_y = cam.pos.y + ndc_y * half_h;
+
+    return (Vec2){ world_x, world_y };
 }
 
 Mat4 projection(Camera *cam) {
@@ -175,6 +205,8 @@ Mat4 compute_mvp(Camera *cam) {
     }
     return Mat4Identity();
 }
+
+/* DRAWING FUNCTIONS */
 
 void beginTextDrawing() {
     sgl_defaults();

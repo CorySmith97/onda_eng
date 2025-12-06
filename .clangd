@@ -1,6 +1,0 @@
-CompileFlags:
-  Add:
-    - -xc
-    - -std=c23
-    - -I$/Users/corysmith/workspace/onda-eng/src/thirdparty
-
