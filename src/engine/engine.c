@@ -14,7 +14,7 @@ static InternalState _is = {0};
 FONScontext* fons_context;
 int font;
 
-void engine_init() {
+void engineInit() {
     LOG(info, "Engine Initialized");
     textures = hashmap_create(sizeof(Texture));
 
@@ -31,7 +31,7 @@ void update_camera(Camera *cam) {
 }
 
 // @todo:cs this needs to open file if failed to find in the hashmap.
-Texture *load_spritesheet(const char *path) {
+Texture *loadSpritesheet(const char *path) {
     Texture *t = imalloc(sizeof(Texture));
     void *value = hashmap_get(textures, path);
     if (value != NULL) {
@@ -147,7 +147,7 @@ Mat4 projection(Camera *cam) {
     f32 halfWidth = sapp_widthf() / 2.0 * cam->zoom_factor;
     f32 halfHeight = sapp_heightf() / 2.0 * cam->zoom_factor;
     
-    Mat4 proj = c_mat4_ortho(
+    Mat4 proj = Mat4Ortho(
         -halfWidth,
         halfWidth,
         -halfHeight, 
@@ -160,7 +160,7 @@ Mat4 projection(Camera *cam) {
 }
 
 Mat4 view(Camera *cam) {
-    return c_mat4_trans(cam->pos.x, cam->pos.y, cam->pos.z);
+    return Mat4Trans(cam->pos.x, cam->pos.y, cam->pos.z);
 }
 
 Mat4 compute_mvp(Camera *cam) {
@@ -168,12 +168,12 @@ Mat4 compute_mvp(Camera *cam) {
         case CAMERA_2D: {
             Mat4 proj = projection(cam);
             Mat4 view_mat = view(cam);
-            Mat4 model = c_mat4_identity();
-            return c_mat4_mul(c_mat4_mul(proj, view_mat), model);
+            Mat4 model = Mat4Identity();
+            return Mat4Mul(Mat4Mul(proj, view_mat), model);
         } break;
         default: {}
     }
-    return c_mat4_identity();
+    return Mat4Identity();
 }
 
 void beginTextDrawing() {
@@ -269,7 +269,7 @@ void end_drawing(){
         f32 tWidth = t->width;
         f32 tHeight = t->height;
         vs_params_t vs_params = {
-            .mvp = c_mat4_mul(compute_mvp(_is.cam), c_mat4_identity()),
+            .mvp = Mat4Mul(compute_mvp(_is.cam), Mat4Identity()),
             .atlas_size = {tWidth, tHeight},
         };
         sg_update_buffer(t->bind.vertex_buffers[1], &(sg_range){

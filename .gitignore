@@ -7,4 +7,3 @@ zig-out/
 .zig-cache/
 nob.old
 nob
-nob.h

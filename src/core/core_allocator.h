@@ -1,12 +1,15 @@
 
-// ARENA
-typedef struct Arena {
+/** @brief Arena Allocator. Arenas are growable via a linked list type interface
+*/
+typedef struct Arena Arena;
+struct Arena {
     u64 reserved;
     u64 len;
     u64 prev_ptr;
     u64 curr_ptr;
     void* data;
-} Arena;
+    Arena* next;
+};
 
 #define DefaultPageSize KB((4))
 #define DefaultAlignment (2*sizeof(void*))
@@ -27,29 +30,3 @@ void _dFree(void *ptr, const char *file, uint32_t line);
 #   define imalloc(size) _dMalloc(size, __FILE__, __LINE__)
 #   define ifree(ptr) _dFree(ptr, __FILE__, __LINE__)
 #endif // DEBUG
-
-
-/*
-Arena arena_alloc_init(usize size);
-void  arena_init(Arena *arena, usize size);
-void *arena_alloc(Arena *arena, usize size);
-void  arena_reset(Arena *arena);
-void  arena_deinit(Arena *arena);
-void *arena_array_concat(Arena *arena, const void *a1, usize s1, const void *a2, usize s2);
-char **arena_string_array_concat(Arena *arena, const char **a1, usize s1, const char **a2, usize s2);
-*/
-
-typedef struct PageAllocator {
-    void *pages;
-    void *free_list;
-    size_t page_count;
-    size_t free_list_count;
-    size_t page_current_ptr;
-#ifdef __cplusplus
-    (*alloc_fn)(size_t) void*;
-    (*free_fn)(void*);
-#endif
-} PageAllocator;
-
-typedef struct ArenaAllocator {
-} ArenaAllocator;

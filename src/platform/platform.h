@@ -33,6 +33,8 @@ typedef struct KeyboardState {
 typedef struct MouseState {
     f32 mouse_pos_x;
     f32 mouse_pos_y;
+    f32 mouse_pos_dx;
+    f32 mouse_pos_dy;
     bool mouse_button_state;
 } MouseState;
 
@@ -176,6 +178,8 @@ bool isKeyReleased(int);
 bool isMouseButtonDown(int);
 bool isMouseButtonPressed(int);
 bool isMouseButtonRelased(int);
+
+Vec2 getMousePos();
 
 
 // external functions you already use

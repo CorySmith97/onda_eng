@@ -88,24 +88,34 @@ typedef struct Color {
 // FUNCTION PROTO
 //
 
-void engine_init(void);
-Texture *load_spritesheet(const char *path);
+/** @brief this initializes the internal systems of the engine runtime.
+ */
+void engineInit(void);
+
+/** @brief Convert the mouse position to a world space position based on the camera type
+ */
+Vec2 mouseToWorldSpace(Camera cam, Vec2 mouse_pos);
+
+/** @brief Load a spritesheet with the default atlas shader provided in the basic shaders file.
+ */
+Texture *loadSpritesheet(const char *path);
 
 /** @brief Drawing function for a single sprite. The sprite for this is the entire image.
  */
-void draw_sprite(Texture *s, Vec2 pos, f32 scale, Color color);
+void drawSprite(Texture *s, Vec2 pos, f32 scale, Color color);
 
 /** @brief Drawing function for a single sprite from a spritesheet.
  *      src is the starting position of the sprite. size is the 
  *      width/height of the sprite as found on the spritesheet.
  */
-//void draw_sprite_ex(Texture s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, Color color);
+void drawSpriteEx(Texture *s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, Color color);
 
 /** @brief Same idea as the draw_sprite_ex, but allows for rotation.
  */
 //void draw_sprite_ex(Texture s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, f32 rotation, Color color);
 
-void update_camera(Camera *cam);
-Mat4 get_camera_matrix(Camera cam);
+void updateCamera(Camera *cam);
+Mat4 getCameraMatrix(Camera cam);
+void beginTextDrawing(void);
 
 #endif  // ENGINE_H

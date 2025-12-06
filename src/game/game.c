@@ -16,7 +16,7 @@ Camera cam;
 f32 delta = 0.75;
 
 void init() {
-    t = load_spritesheet("data/masterspritesheet.png");
+    t = loadSpritesheet("data/masterspritesheet.png");
     assert(t != NULL);
     cam = (Camera){
         .pos = {0, 0, 0},
@@ -58,6 +58,9 @@ void frame() {
     if (isKeyPressed(KEY_A)) {
         cam.pos.x += 0.001/ cam.zoom_factor;
     }
+    Vec2 mouse_pos = getMousePos();
+
+    LOG(info, "%f, %f", mouse_pos.x, mouse_pos.y);
     update_camera(&cam);
     begin_drawing();
     float origin_x = 0.0f;

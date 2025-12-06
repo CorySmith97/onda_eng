@@ -4,6 +4,6 @@
 
 
 #include "core_allocator.c"
-#include "c_math.c"
+#include "core_math.c"
 #include "core_strings.c"
 #include "core_hashmap.c"

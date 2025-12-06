@@ -60,11 +60,23 @@ bool isKeyReleased(int key) {
     return pressed;
 }
 
+
+Vec2 getMousePos() {
+    return (Vec2){ 
+        mouse_state.mouse_pos_x,
+        mouse_state.mouse_pos_y
+    };
+}
+
 void onMouseDown(int button) { 
 }
 void onMouseUp(int button) { 
 }
 void onMouseMoved(float x, float y, float dx, float dy) { 
+    mouse_state.mouse_pos_x = x;
+    mouse_state.mouse_pos_y = y;
+    mouse_state.mouse_pos_dx = dx;
+    mouse_state.mouse_pos_dy = dy;
 }
 void onKeyDown(int key) { 
     if (keyboard_state.key_curr_state[key] == true) {

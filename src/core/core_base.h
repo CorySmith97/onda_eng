@@ -16,6 +16,8 @@
 #include <stdint.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <string.h>
+
 
 typedef int8_t i8;
 typedef int16_t i16;
@@ -79,10 +81,27 @@ typedef struct ArrayString {
     u32 capacity;
 } ArrayString;
 
-#define array_create(a, i)
-#define array_reserve(a, s)
-#define array_free(a)
+/** Take arena and arr by pointer
+*/
+#define ArenaArrayPush(_Arena, a, _v) \
+    do {\
+        if ((a->data == NULL) {\
+            a->data = ArenaMalloc((_Arena), DefaultArraySize * sizeof(_v));\
+        }\
+        if (((a)->len + 1 < (a)->capacity)) {               \
+            (a)->data[(a)->len] = v;                            \
+            (a)->len += 1;                                      \
+        } else {                                                \
+            u32 new_cap = (a)->capacity ? ((a)->capacity * 2) : 2;\
+            (a)->data = ArenaMalloc((_Arena), (a)->data, new_cap * sizeof(v));\
+            (a)->capacity = new_cap;                            \
+            (a)->data[(a)->len] = v;                            \
+            (a)->len++;                                         \
+        }                                                       \
+    } while (0);\
 
+
+// @todo:cs add a zero check
 #define array_push(a, v)                                        \
     do {                                                        \
         if (((a)->len + 1 < (a)->capacity)) {               \

@@ -20,7 +20,7 @@ static void sokol_init(void* user_data) {
     });
     sgl_setup(&(sgl_desc_t){});
 
-    engine_init();
+    engineInit();
 
     PlatformDesc *usr = user_data;
     usr->init_fn();

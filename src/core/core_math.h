@@ -16,31 +16,31 @@ typedef struct Mat4 {
     f32 m[4][4];
 } Mat4;
 
-extern Vec2 c_vec2_add(Vec2 a, Vec2 b);
-extern Vec2 c_vec2_sub(Vec2 a, Vec2 b);
-extern Vec2 c_vec2_scale(Vec2 a, f32 scale);
-extern f32  c_vec2_dot(Vec2 a, Vec2 b);
+Vec2 Vec2Add(Vec2 a, Vec2 b);
+Vec2 Vec2Sub(Vec2 a, Vec2 b);
+Vec2 Vec2Scale(Vec2 a, f32 scale);
+f32  Vec2Dot(Vec2 a, Vec2 b);
 
-extern Vec3 c_vec3_add(Vec3 a, Vec3 b);
-extern Vec3 c_vec3_sub(Vec3 a, Vec3 b);
-extern Vec3 c_vec3_scale(Vec3 a, f32 scale);
-extern f32  c_vec3_dot(Vec3 a, Vec3 b);
-extern Vec3 c_vec3_cross(Vec3 a, Vec3 b);
+Vec3 Vec3Add(Vec3 a, Vec3 b);
+Vec3 Vec3Sub(Vec3 a, Vec3 b);
+Vec3 Vec3Scale(Vec3 a, f32 scale);
+f32  Vec3Dot(Vec3 a, Vec3 b);
+Vec3 Vec3Cross(Vec3 a, Vec3 b);
 
-extern Vec4 c_vec4_add(Vec4 a, Vec4 b);
-extern Vec4 c_vec4_sub(Vec4 a, Vec4 b);
-extern Vec4 c_vec4_scale(Vec4 a, f32 scale);
-extern f32  c_vec4_dot(Vec4 a, Vec4 b);
-extern Vec4 c_vec4_cross(Vec4 a, Vec4 b);
+Vec4 Vec4Add(Vec4 a, Vec4 b);
+Vec4 Vec4Sub(Vec4 a, Vec4 b);
+Vec4 Vec4Scale(Vec4 a, f32 scale);
+f32  Vec4Dot(Vec4 a, Vec4 b);
+Vec4 Vec4Cross(Vec4 a, Vec4 b);
 
-extern Mat4 c_mat4_mul(Mat4 a, Mat4 b);
-extern Mat4 c_mat4_inv(Mat4 a);
-extern Mat4 c_mat4_mul_inv(Mat4 a, Mat4 b);
-extern Mat4 c_mat4_inv_inv(Mat4 a, Mat4 b);
-extern Mat4 c_mat4_transpose(Mat4 a);
-extern Mat4 c_mat4_transpose_inv(Mat4 a);
-extern Mat4 c_mat4_look_at(Vec3 eye, Vec3 at, Vec3 up);
-Mat4 c_mat4_ortho( f32 left, f32 right, f32 bottom, f32 top, f32 near, f32 far);
-extern Mat4 c_mat4_identity();
+Mat4 Mat4Mul(Mat4 a, Mat4 b);
+Mat4 Mat4Inv(Mat4 a);
+Mat4 Mat4Mul_inv(Mat4 a, Mat4 b);
+Mat4 Mat4Inv_inv(Mat4 a, Mat4 b);
+Mat4 Mat4Transpose(Mat4 a);
+Mat4 Mat4Transpose_inv(Mat4 a);
+Mat4 Mat4Look_at(Vec3 eye, Vec3 at, Vec3 up);
+Mat4 Mat4Ortho( f32 left, f32 right, f32 bottom, f32 top, f32 near, f32 far);
+Mat4 Mat4Identity();
 
 

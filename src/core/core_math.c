@@ -3,52 +3,40 @@
 //
 #include <math.h>
 
-//
-// =========================
-// ===   VEC2 FUNCTIONS  ===
-// =========================
-//
-
-Vec2 c_vec2_add(Vec2 a, Vec2 b) {
+Vec2 Vec2Add(Vec2 a, Vec2 b) {
     return (Vec2){ a.x + b.x, a.y + b.y };
 }
 
-Vec2 c_vec2_sub(Vec2 a, Vec2 b) {
+Vec2 Vec2Sub(Vec2 a, Vec2 b) {
     return (Vec2){ a.x - b.x, a.y - b.y };
 }
 
-Vec2 c_vec2_scale(Vec2 a, f32 s) {
+Vec2 Vec2Scale(Vec2 a, f32 s) {
     return (Vec2){ a.x * s, a.y * s };
 }
 
-f32 c_vec2_dot(Vec2 a, Vec2 b) {
+f32 Vec2Dot(Vec2 a, Vec2 b) {
     return a.x * b.x + a.y * b.y;
 }
 
 
-//
-// =========================
-// ===   VEC3 FUNCTIONS  ===
-// =========================
-//
-
-Vec3 c_vec3_add(Vec3 a, Vec3 b) {
+Vec3 Vec3Add(Vec3 a, Vec3 b) {
     return (Vec3){ a.x + b.x, a.y + b.y, a.z + b.z };
 }
 
-Vec3 c_vec3_sub(Vec3 a, Vec3 b) {
+Vec3 Vec3Sub(Vec3 a, Vec3 b) {
     return (Vec3){ a.x - b.x, a.y - b.y, a.z - b.z };
 }
 
-Vec3 c_vec3_scale(Vec3 a, f32 s) {
+Vec3 Vec3Scale(Vec3 a, f32 s) {
     return (Vec3){ a.x * s, a.y * s, a.z * s };
 }
 
-f32 c_vec3_dot(Vec3 a, Vec3 b) {
+f32 Vec3Dot(Vec3 a, Vec3 b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
-Vec3 c_vec3_cross(Vec3 a, Vec3 b) {
+Vec3 Vec3Cross(Vec3 a, Vec3 b) {
     return (Vec3){
         a.y * b.z - a.z * b.y,
         a.z * b.x - a.x * b.z,
@@ -56,42 +44,28 @@ Vec3 c_vec3_cross(Vec3 a, Vec3 b) {
     };
 }
 
-Vec3 c_vec3_norm(Vec3 a) {
-    f32 len = sqrtf(c_vec3_dot(a, a));
-    return (len > 0.0f) ? c_vec3_scale(a, 1.0f / len) : a;
+Vec3 Vec3Norm(Vec3 a) {
+    f32 len = sqrtf(Vec3Dot(a, a));
+    return (len > 0.0f) ? Vec3Scale(a, 1.0f / len) : a;
 }
 
-
-//
-// =========================
-// ===   VEC4 FUNCTIONS  ===
-// =========================
-//
-
-Vec4 c_vec4_add(Vec4 a, Vec4 b) {
+Vec4 Vec4Add(Vec4 a, Vec4 b) {
     return (Vec4){ a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w };
 }
 
-Vec4 c_vec4_sub(Vec4 a, Vec4 b) {
+Vec4 Vec4Sub(Vec4 a, Vec4 b) {
     return (Vec4){ a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w };
 }
 
-Vec4 c_vec4_scale(Vec4 a, f32 s) {
+Vec4 Vec4Scale(Vec4 a, f32 s) {
     return (Vec4){ a.x * s, a.y * s, a.z * s, a.w * s };
 }
 
-f32 c_vec4_dot(Vec4 a, Vec4 b) {
+f32 Vec4Dot(Vec4 a, Vec4 b) {
     return a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w;
 }
 
-
-//
-// =========================
-// ===   MAT4 FUNCTIONS  ===
-// =========================
-//
-
-Mat4 c_mat4_identity() {
+Mat4 Mat4Identity() {
     Mat4 m = {0};
     m.m[0][0] = 1.f;
     m.m[1][1] = 1.f;
@@ -100,15 +74,15 @@ Mat4 c_mat4_identity() {
     return m;
 }
 
-Mat4 c_mat4_trans(float x, float y, float z) {
-    Mat4 m = c_mat4_identity();
+Mat4 Mat4Trans(float x, float y, float z) {
+    Mat4 m = Mat4Identity();
     m.m[3][0] = x;
     m.m[3][1] = y;
     m.m[3][2] = z;
     return m;
 }
 
-Mat4 c_mat4_scale(float x, float y, float z) {
+Mat4 Mat4Scale(float x, float y, float z) {
     Mat4 m = {0};
     m.m[0][0] = x;
     m.m[1][1] = y;
@@ -117,31 +91,31 @@ Mat4 c_mat4_scale(float x, float y, float z) {
     return m;
 }
 
-Mat4 c_mat4_rot_x(float a) {
+Mat4 Mat4RotX(float a) {
     float s = sinf(a), c = cosf(a);
-    Mat4 m = c_mat4_identity();
+    Mat4 m = Mat4Identity();
     m.m[1][1] = c;  m.m[2][1] = -s;
     m.m[1][2] = s;  m.m[2][2] = c;
     return m;
 }
 
-Mat4 c_mat4_rot_y(float a) {
+Mat4 Mat4RotY(float a) {
     float s = sinf(a), c = cosf(a);
-    Mat4 m = c_mat4_identity();
+    Mat4 m = Mat4Identity();
     m.m[0][0] = c;  m.m[2][0] = s;
     m.m[0][2] = -s; m.m[2][2] = c;
     return m;
 }
 
-Mat4 c_mat4_rot_z(float a) {
+Mat4 Mat4RotZ(float a) {
     float s = sinf(a), c = cosf(a);
-    Mat4 m = c_mat4_identity();
+    Mat4 m = Mat4Identity();
     m.m[0][0] = c;  m.m[1][0] = -s;
     m.m[0][1] = s;  m.m[1][1] = c;
     return m;
 }
 
-Mat4 c_mat4_mul(Mat4 a, Mat4 b) {
+Mat4 Mat4Mul(Mat4 a, Mat4 b) {
     Mat4 r = {0};
     for (int i=0;i<4;i++)
         for (int j=0;j<4;j++)
@@ -150,7 +124,7 @@ Mat4 c_mat4_mul(Mat4 a, Mat4 b) {
     return r;
 }
 
-Mat4 c_mat4_transpose(Mat4 a) {
+Mat4 Mat4Transpose(Mat4 a) {
     Mat4 r;
     for (int i=0;i<4;i++)
         for (int j=0;j<4;j++)
@@ -158,14 +132,10 @@ Mat4 c_mat4_transpose(Mat4 a) {
     return r;
 }
 
-
-// --------------------------
-// Proper 4×4 matrix inverse
-// --------------------------
-Mat4 c_mat4_inv(Mat4 m) {
+Mat4 Mat4Inv(Mat4 m) {
     Mat4 r = {0};
-    float inv[16], det;
-    float* a = (float*)m.m;
+    f32 inv[16], det;
+    f32* a = (f32*)m.m;
 
     inv[0] = a[5]  * a[10] * a[15] -
              a[5]  * a[11] * a[14] -
@@ -295,20 +265,20 @@ Mat4 c_mat4_inv(Mat4 m) {
 // =========================
 //
 
-Mat4 c_mat4_look_at(Vec3 eye, Vec3 at, Vec3 up) {
-    Vec3 f = c_vec3_norm(c_vec3_sub(at, eye));     // Forward
-    Vec3 r = c_vec3_norm(c_vec3_cross(f, up));     // Right
-    Vec3 u = c_vec3_cross(r, f);                   // Up
+Mat4 Mat4LookAt(Vec3 eye, Vec3 at, Vec3 up) {
+    Vec3 f = Vec3Norm(Vec3Sub(at, eye));     // Forward
+    Vec3 r = Vec3Norm(Vec3Cross(f, up));     // Right
+    Vec3 u = Vec3Cross(r, f);                   // Up
 
-    Mat4 m = c_mat4_identity();
+    Mat4 m = Mat4Identity();
 
     m.m[0][0] = r.x;  m.m[1][0] = r.y;  m.m[2][0] = r.z;
     m.m[0][1] = u.x;  m.m[1][1] = u.y;  m.m[2][1] = u.z;
     m.m[0][2] = -f.x; m.m[1][2] = -f.y; m.m[2][2] = -f.z;
 
-    m.m[3][0] = -c_vec3_dot(r, eye);
-    m.m[3][1] = -c_vec3_dot(u, eye);
-    m.m[3][2] =  c_vec3_dot(f, eye);
+    m.m[3][0] = -Vec3Dot(r, eye);
+    m.m[3][1] = -Vec3Dot(u, eye);
+    m.m[3][2] =  Vec3Dot(f, eye);
 
     return m;
 }
@@ -320,7 +290,7 @@ Mat4 c_mat4_look_at(Vec3 eye, Vec3 at, Vec3 up) {
 // ================================
 //
 
-Mat4 c_mat4_ortho(
+Mat4 Mat4Ortho(
     f32 left, f32 right,
     f32 bottom, f32 top,
     f32 near, f32 far) {
