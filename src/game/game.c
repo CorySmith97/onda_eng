@@ -26,13 +26,25 @@ void init() {
         .target = {0, 0, 0},
         .fov = 45,
         .type = CAMERA_2D,
-        .zoom_factor = 0.01,
+        .zoom_factor = 0.02,
     };
     for (int i = 0; i < 10; i++) {
         for (int j = 0; i < 10; i++) {
         grid[i][j] = (Tile){tile_grass};
         }
     }
+}
+
+bool isPointInIsoTile(Vec2 point, f32 tile_x, f32 tile_y, f32 tile_width, f32 tile_height) {
+    // Transform point relative to tile position
+    f32 px = point.x - tile_x;
+    f32 py = point.y - tile_y;
+    
+    // Check if point is inside the diamond shape
+    f32 half_width = tile_width / 2.0f;
+    f32 half_height = tile_height / 2.0f;
+    
+    return (fabsf(px) / half_width + fabsf(py) / half_height) <= 1.0f;
 }
 
 void frame() {
@@ -64,8 +76,9 @@ void frame() {
         cam.pos.x += 0.001/ cam.zoom_factor;
     }
     Vec2 mouse_pos = getMousePos();
+    Vec2 world_mouse_pos = mouseToWorldPosition(cam, mouse_pos);
 
-    // LOG(info, "%f, %f", mouse_pos.x, mouse_pos.y);
+     LOG(info, "%f, %f", world_mouse_pos.x, world_mouse_pos.y);
     update_camera(&cam);
     begin_drawing();
     float origin_x = 0.0f;
@@ -77,7 +90,17 @@ void frame() {
         for (int i = 0; i < 10; i++) {
             float sx = origin_x + (float)(i - j) * (tile_w_world * 0.5f);
             float sy = origin_y + (float)(i + j) * (tile_h_world * 0.5f - delta);
-
+            if (isPointInIsoTile(world_mouse_pos, sx + 0.5, sy + 0.5, 1, 1)) {
+                drawSpriteEx(
+                    t,
+                    (Vec2){ sx, sy },
+                    (Vec2){ 32, 0 }, 
+                    (Vec2){ 32, 32 },
+                    1.0f,
+                    (Color){ 255, 255, 255, 255 }
+                );
+                continue;
+            }
             drawSpriteEx(
                 t,
                 (Vec2){ sx, sy },
@@ -86,10 +109,18 @@ void frame() {
                 1.0f,
                 (Color){ 255, 255, 255, 255 }
             );
+
         }
     }
 
-    drawSprite(m, mouseToWorldPosition(cam, mouse_pos), 1.0, (Color){0});
+    //drawSpriteEx(
+    //    m,
+    //    (Vec2){world_mouse_pos.x - 0.5, world_mouse_pos.y - 0.5},
+    //    (Vec2){ 32, 0 }, 
+    //    (Vec2){ 32, 32 },
+    //    1.0f,
+    //    (Color){ 255, 255, 255, 255 }
+    //);
 
     beginTextDrawing();
     drawCameraCoords(&cam);

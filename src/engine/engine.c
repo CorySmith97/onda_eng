@@ -150,6 +150,7 @@ Texture *loadSpritesheet(const char *path) {
 
 /* CAMERA */
 
+// THIS DOES NOT WORK
 Vec2 mouseToWorldPosition(Camera cam, Vec2 mouse) {
     float screen_w = sapp_widthf();
     float screen_h = sapp_heightf();
@@ -265,12 +266,11 @@ void drawSprite(Texture *s, Vec2 pos, f32 scale, Color color) {
 
 }
 
-//void draw_sprite_ex(Texture s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, Color color);
 void drawSpriteEx( Texture *s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, Color color) {
     f32 tWidth = s->width;
     f32 tHeight = s->height;
 
-    Sprite sprite = (Sprite){{pos.x, pos.y, scale}, {tWidth - src.x, tHeight - src.y - size.y, src.x + size.x, src.y + size.y}};
+    Sprite sprite = (Sprite){{pos.x, pos.y, scale}, {src.x, tHeight - src.y - size.y, size.x, size.y}};
     array_push(s->sprites, sprite);
 }
 
@@ -304,10 +304,12 @@ void end_drawing(){
             .mvp = Mat4Mul(compute_mvp(_is.cam), Mat4Identity()),
             .atlas_size = {tWidth, tHeight},
         };
-        sg_update_buffer(t->bind.vertex_buffers[1], &(sg_range){
-            .ptr = t->sprites->data,
-            .size = t->sprites->len * sizeof(Sprite),
-        });
+        if (t->sprites->len > 0) {
+            sg_update_buffer(t->bind.vertex_buffers[1], &(sg_range){
+                .ptr = t->sprites->data,
+                .size = t->sprites->len * sizeof(Sprite),
+            });
+        }
         sg_apply_pipeline(t->pipe);
         sg_apply_bindings(&t->bind);
         sg_apply_uniforms(UB_vs_params, &SG_RANGE(vs_params));
