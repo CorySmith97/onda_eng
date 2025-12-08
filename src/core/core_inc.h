@@ -2,3 +2,4 @@
 #include "core_math.h"
 #include "core_allocator.h"
 #include "core_hashmap.h"
+#include "core_strings.h"

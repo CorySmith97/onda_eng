@@ -1,4 +1,16 @@
-#include <string.h>
+
+bool String8Compare(String8 s1, String8 s2) {
+    if (s1.len != s2.len) {
+        return false;
+    }
+    for (int i = 0; i < s1.len; i++) {
+        u8 c1 = s1.data[i];
+        u8 c2 = s2.data[i];
+        if (c1 != c2) return false;
+    }
+
+    return true;
+}
 
 /*
 void c_array_string_push(

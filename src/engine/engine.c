@@ -4,6 +4,12 @@
 
 #define MAXSPRITESINBATCH 1000
 
+typedef struct BasicPipeline BasicPipeline;
+struct BasicPipeline {
+    sg_bindings bind;
+    sg_pipeline pipe;
+};
+
 typedef struct InternalState {
     Arena *frame_arena;
     Camera *cam;
@@ -239,7 +245,7 @@ void drawCameraCoords(Camera *cam) {
     fonsSetFont(fons_context, font);
     fonsSetSize(fons_context, 24.0f);
     fonsSetColor(fons_context, white);
-    fonsPrintf(fons_context, dx, dy, "%f, %f, %f", cam->pos.x, cam->pos.y, cam->pos.z);
+    fonsPrintf(fons_context, dx, 48, "%f, %f, %f", cam->pos.x, cam->pos.y, cam->pos.z);
 }
 
 void drawFps() {
@@ -250,7 +256,7 @@ void drawFps() {
     fonsSetFont(fons_context, font);
     fonsSetSize(fons_context, 24.0f);
     fonsSetColor(fons_context, white);
-    fonsPrintf(fons_context, dx, 100, "%f.1", 1 / sapp_frame_duration());
+    fonsPrintf(fons_context, dx, 24, "%f.1", 1 / sapp_frame_duration());
 }
 
 /* The default draw sprite functions will only be compatible with the basic_atlas shader found in 

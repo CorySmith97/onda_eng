@@ -3,48 +3,68 @@
 
 #include <time.h>
 
-typedef struct Section {
+typedef struct {
     String8 name;
-    String8 function_name;
-    struct timespec start;
-    struct timespec end;
-    u64 delta;
+    uint64_t start_ns;
+    uint64_t end_ns;
+    uint64_t delta_ns;
 } Section;
 
+typedef struct ArraySection {
+    Section *data;
+    u64 capacity;
+    u64 len;
+} ArraySection;
 
 typedef struct Profiler {
     Arena arena;
-    Section *sections;
-    u64 capacity;
-    u64 len;
+    ArraySection sections;
 } Profiler;
 
-Profiler *p;
+Profiler profiler;
 
-void prof_init(
-) {
-    p = malloc(sizeof(Profiler));
-    c_arena_init(&p->arena, GB(1));
+#ifdef DEBUG
+#   define SectionStart(_S) _internal_section_start((Str(_S)))
+#   define SectionEnd(_S) _internal_section_end((Str(_S)))
+#else
+#   define SectionStart(_S)
+#   define SectionEnd(_S)
+#endif
+
+static uint64_t timespec_to_ns(struct timespec ts) {
+    return (uint64_t)ts.tv_sec * 1000000000ull + (uint64_t)ts.tv_nsec;
 }
 
-void internal_prof_section_push(
-    Section section
-) {
-    if (p->len++ >= p->capacity) {
-        p->capacity *= 2;
-        p->sections = c_arena_alloc(&p->arena, sizeof(Section) * p->capacity);
+static void _internal_section_start(String8 str) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    Section d = {
+        .name     = str,
+        .start_ns = timespec_to_ns(ts),
+        .end_ns   = 0,
+        .delta_ns = 0,
+    };
+    array_push(&profiler.sections, d);
+}
+
+static void _internal_section_end(String8 str) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    uint64_t now_ns = timespec_to_ns(ts);
+    
+    for (int i = profiler.sections.len - 1; i >= 0; i--) {
+        Section *sec = &profiler.sections.data[i];
+        if (String8Compare(str, sec->name) && sec->end_ns == 0) { 
+            sec->end_ns   = now_ns;
+            sec->delta_ns = now_ns - sec->start_ns;
+            break;
+        }
     }
 }
 
-void prof_section_begin(
-    String8 name
-) {
-
+void ResetProf() {
+    profiler.sections.len = 0;
 }
-
-void prof_section_end(
-    String8 name
-) {}
 
 
 #endif // PROF_H

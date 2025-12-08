@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 typedef enum {
     tile_grass,
     tile_dirt,
@@ -48,6 +50,12 @@ bool isPointInIsoTile(Vec2 point, f32 tile_x, f32 tile_y, f32 tile_width, f32 ti
 }
 
 void frame() {
+    ResetProf(); 
+
+    SectionStart("Input");
+    if (isKeyPressed(KEY_H)) {
+        sleep(1);
+    }
     if (isKeyPressed(KEY_M)) {
         delta += 0.005;
     }
@@ -55,7 +63,7 @@ void frame() {
         delta -= 0.005;
     }
     if (isKeyPressed(KEY_SEMICOLON)) {
-        LOG(info, "Global byte count: %u", global_allocations.total_bytes_allocated);
+        LOG(info, "Global byte count: %llu", global_allocations.total_bytes_allocated);
     }
     if (isKeyPressed(KEY_L)) {
         cam.zoom_factor += 0.005;
@@ -75,10 +83,16 @@ void frame() {
     if (isKeyPressed(KEY_A)) {
         cam.pos.x += 0.001/ cam.zoom_factor;
     }
+    SectionEnd("Input");
+
+    SectionStart("Update");
+    SectionEnd("Update");
+
+    SectionStart("Render");
+        
     Vec2 mouse_pos = getMousePos();
     Vec2 world_mouse_pos = mouseToWorldPosition(cam, mouse_pos);
 
-     LOG(info, "%f, %f", world_mouse_pos.x, world_mouse_pos.y);
     update_camera(&cam);
     begin_drawing();
     float origin_x = 0.0f;
@@ -112,7 +126,6 @@ void frame() {
 
         }
     }
-
     //drawSpriteEx(
     //    m,
     //    (Vec2){world_mouse_pos.x - 0.5, world_mouse_pos.y - 0.5},
@@ -127,5 +140,12 @@ void frame() {
     drawFps();
     endTextDrawing();
     end_drawing();
+
+    SectionEnd("Render");
+
+    for (int i = 0; i < profiler.sections.len; i++) {
+        Section s = profiler.sections.data[i];
+        LOG(info, "%s: %lluns (%.3fms)", s.name.data, s.delta_ns, s.delta_ns / 1000000.0);
+    }
 }
 

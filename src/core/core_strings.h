@@ -9,6 +9,8 @@ struct String8 {
 
 #define Str(str) (String8){.data = (str), .len = sizeof((str))-1}
 
+bool String8Compare(String8 s1, String8 s2);
+
 String8 *c_string8_create(Arena *arena);
 void     c_string8_destroy(String8 *string);
 

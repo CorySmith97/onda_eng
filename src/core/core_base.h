@@ -81,25 +81,6 @@ typedef struct ArrayString {
     u32 capacity;
 } ArrayString;
 
-/** Take arena and arr by pointer
-*/
-#define ArenaArrayPush(_Arena, a, _v) \
-    do {\
-        if ((a->data == NULL) {\
-            a->data = ArenaMalloc((_Arena), DefaultArraySize * sizeof(_v));\
-        }\
-        if (((a)->len + 1 < (a)->capacity)) {               \
-            (a)->data[(a)->len] = v;                            \
-            (a)->len += 1;                                      \
-        } else {                                                \
-            u32 new_cap = (a)->capacity ? ((a)->capacity * 2) : 2;\
-            (a)->data = ArenaMalloc((_Arena), (a)->data, new_cap * sizeof(v));\
-            (a)->capacity = new_cap;                            \
-            (a)->data[(a)->len] = v;                            \
-            (a)->len++;                                         \
-        }                                                       \
-    } while (0);\
-
 
 // @todo:cs add a zero check
 #define array_push(a, v)                                        \
@@ -145,10 +126,13 @@ static const char* log_color_str[] = {
     FOREACH_LOG_LEVEL_COLOR(LOG_STRING_GEN)
 };
 
+// @todo:cs add a log to file.
 #ifdef POSIX
     #define LOG(_LEVEL, _STR, ...) (printf("%s[%s]\e[0m " _STR "\n", log_color_str[_LEVEL], log_level_str[_LEVEL],  ##__VA_ARGS__))
+    #define LOGF(_LEVEL, _STR, ...) (printf("%s[%s]\e[0m " _STR "\n", log_color_str[_LEVEL], log_level_str[_LEVEL],  ##__VA_ARGS__))
 #else
     #define LOG(_LEVEL, _STR, ...) (printf("[%s] " _STR "\n",  log_level_str[_LEVEL],  ##__VA_ARGS__))
+    #define LOGF(_LEVEL, _STR, ...) (printf("[%s] " _STR "\n",  log_level_str[_LEVEL],  ##__VA_ARGS__))
 #endif
 
 #endif //CORE_H
