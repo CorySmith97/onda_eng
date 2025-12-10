@@ -3,6 +3,11 @@
 
 #include <time.h>
 
+/** 
+ * @todo:cs This is not currently working with nested Sections.
+ * Profiler needs to be completely working.
+*/
+
 typedef struct {
     String8 name;
     uint64_t start_ns;
@@ -64,6 +69,13 @@ static void _internal_section_end(String8 str) {
 
 void ResetProf() {
     profiler.sections.len = 0;
+}
+
+void PrintProfilerInfo() {
+    for (int i = 0; i < profiler.sections.len; i++) {
+        Section s = profiler.sections.data[i];
+        LOG(info, "%s: %lluns (%.3fms)", s.name.data, s.delta_ns, s.delta_ns / 1000000.0);
+    }
 }
 
 

@@ -3,3 +3,4 @@
 #include "core_allocator.h"
 #include "core_hashmap.h"
 #include "core_strings.h"
+#include "core_prof.h"

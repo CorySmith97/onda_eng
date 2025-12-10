@@ -15,6 +15,13 @@ typedef enum {
     CAMERA_2D,
 } CameraTypes;
 
+typedef struct Camera2d {
+    Vec2 target;
+    Vec2 offset;
+    f32 rotation;
+    f32 zoom_factor;
+} Camera2d;
+
 typedef struct Camera {
     Vec3 pos;
     Vec3 target;
@@ -110,12 +117,20 @@ void drawSprite(Texture *s, Vec2 pos, f32 scale, Color color);
  */
 void drawSpriteEx(Texture *s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, Color color);
 
-/** @brief Same idea as the draw_sprite_ex, but allows for rotation.
- */
-//void draw_sprite_ex(Texture s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, f32 rotation, Color color);
+/** @brief Get a camera matrix (View matrix) from a 2d camera
+  */
+Mat4 getCamera2dMatrix(Camera2d cam);
 
+/**
+  */
 void updateCamera(Camera *cam);
+
+/**
+  */
 Mat4 getCameraMatrix(Camera cam);
+
+/**
+  */
 void beginTextDrawing(void);
 
 #endif  // ENGINE_H

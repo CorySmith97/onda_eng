@@ -3,7 +3,6 @@
 #include "platform/platform.h"
 #include "engine/engine.h"
 #include "game/game.h"
-#include "profiler/prof.h"
 
 // C Includes
 #include "core/core_inc.c"

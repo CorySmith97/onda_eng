@@ -49,6 +49,20 @@ Vec3 Vec3Norm(Vec3 a) {
     return (len > 0.0f) ? Vec3Scale(a, 1.0f / len) : a;
 }
 
+Vec3 Vec3Transform(Vec3 a, Mat4 mat) {
+    Vec3 result = { 0 };
+
+    f32 x = a.x;
+    f32 y = a.y;
+    f32 z = a.z;
+
+    result.x = mat.m[0][0]*x + mat.m[0][1]*y + mat.m[0][2]*z + mat.m[0][3];
+    result.y = mat.m[1][0]*x + mat.m[1][1]*y + mat.m[1][2]*z + mat.m[1][3];
+    result.z = mat.m[2][0]*x + mat.m[2][1]*y + mat.m[2][2]*z + mat.m[2][3];
+
+    return result;
+}
+
 Vec4 Vec4Add(Vec4 a, Vec4 b) {
     return (Vec4){ a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w };
 }
@@ -74,7 +88,7 @@ Mat4 Mat4Identity() {
     return m;
 }
 
-Mat4 Mat4Trans(float x, float y, float z) {
+Mat4 Mat4Trans(f32 x, f32 y, f32 z) {
     Mat4 m = Mat4Identity();
     m.m[3][0] = x;
     m.m[3][1] = y;
@@ -132,130 +146,47 @@ Mat4 Mat4Transpose(Mat4 a) {
     return r;
 }
 
-Mat4 Mat4Inv(Mat4 m) {
-    Mat4 r = {0};
-    f32 inv[16], det;
-    f32* a = (f32*)m.m;
+Mat4 Mat4Inv(Mat4 mat) {
+    // ADJUSTED FROM RAYLIB
+    Mat4 result = {0};
+    f32 a00 = mat.m[0][0], a01 = mat.m[0][1], a02 = mat.m[0][2], a03 = mat.m[0][3];
+    f32 a10 = mat.m[0][1], a11 = mat.m[1][1], a12 = mat.m[1][2], a13 = mat.m[1][3];
+    f32 a20 = mat.m[0][2], a21 = mat.m[1][2], a22 = mat.m[2][2], a23 = mat.m[2][3];
+    f32 a30 = mat.m[0][3], a31 = mat.m[1][3], a32 = mat.m[3][2], a33 = mat.m[3][3];
+    
+    f32 b00 = a00*a11 - a01*a10;
+    f32 b01 = a00*a12 - a02*a10;
+    f32 b02 = a00*a13 - a03*a10;
+    f32 b03 = a01*a12 - a02*a11;
+    f32 b04 = a01*a13 - a03*a11;
+    f32 b05 = a02*a13 - a03*a12;
+    f32 b06 = a20*a31 - a21*a30;
+    f32 b07 = a20*a32 - a22*a30;
+    f32 b08 = a20*a33 - a23*a30;
+    f32 b09 = a21*a32 - a22*a31;
+    f32 b10 = a21*a33 - a23*a31;
+    f32 b11 = a22*a33 - a23*a32;
 
-    inv[0] = a[5]  * a[10] * a[15] -
-             a[5]  * a[11] * a[14] -
-             a[9]  * a[6]  * a[15] +
-             a[9]  * a[7]  * a[14] +
-             a[13] * a[6]  * a[11] -
-             a[13] * a[7]  * a[10];
+    // Calculate the invert determinant (inlined to avoid double-caching)
+    float invDet = 1.0f/(b00*b11 - b01*b10 + b02*b09 + b03*b08 - b04*b07 + b05*b06);
 
-    inv[4] = -a[4]  * a[10] * a[15] +
-             a[4]  * a[11] * a[14] +
-             a[8]  * a[6]  * a[15] -
-             a[8]  * a[7]  * a[14] -
-             a[12] * a[6]  * a[11] +
-             a[12] * a[7]  * a[10];
-
-    inv[8] = a[4]  * a[9] * a[15] -
-             a[4]  * a[11] * a[13] -
-             a[8]  * a[5] * a[15] +
-             a[8]  * a[7] * a[13] +
-             a[12] * a[5] * a[11] -
-             a[12] * a[7] * a[9];
-
-    inv[12] = -a[4]  * a[9] * a[14] +
-              a[4]  * a[10] * a[13] +
-              a[8]  * a[5] * a[14] -
-              a[8]  * a[6] * a[13] -
-              a[12] * a[5] * a[10] +
-              a[12] * a[6] * a[9];
-
-    inv[1] = -a[1]  * a[10] * a[15] +
-             a[1]  * a[11] * a[14] +
-             a[9]  * a[2] * a[15] -
-             a[9]  * a[3] * a[14] -
-             a[13] * a[2] * a[11] +
-             a[13] * a[3] * a[10];
-
-    inv[5] = a[0]  * a[10] * a[15] -
-             a[0]  * a[11] * a[14] -
-             a[8]  * a[2] * a[15] +
-             a[8]  * a[3] * a[14] +
-             a[12] * a[2] * a[11] -
-             a[12] * a[3] * a[10];
-
-    inv[9] = -a[0]  * a[9] * a[15] +
-             a[0]  * a[11] * a[13] +
-             a[8]  * a[1] * a[15] -
-             a[8]  * a[3] * a[13] -
-             a[12] * a[1] * a[11] +
-             a[12] * a[3] * a[9];
-
-    inv[13] = a[0]  * a[9] * a[14] -
-              a[0]  * a[10] * a[13] -
-              a[8]  * a[1] * a[14] +
-              a[8]  * a[2] * a[13] +
-              a[12] * a[1] * a[10] -
-              a[12] * a[2] * a[9];
-
-    inv[2] = a[1]  * a[6] * a[15] -
-             a[1]  * a[7] * a[14] -
-             a[5]  * a[2] * a[15] +
-             a[5]  * a[3] * a[14] +
-             a[13] * a[2] * a[7] -
-             a[13] * a[3] * a[6];
-
-    inv[6] = -a[0]  * a[6] * a[15] +
-             a[0]  * a[7] * a[14] +
-             a[4]  * a[2] * a[15] -
-             a[4]  * a[3] * a[14] -
-             a[12] * a[2] * a[7] +
-             a[12] * a[3] * a[6];
-
-    inv[10] = a[0]  * a[5] * a[15] -
-              a[0]  * a[7] * a[13] -
-              a[4]  * a[1] * a[15] +
-              a[4]  * a[3] * a[13] +
-              a[12] * a[1] * a[7] -
-              a[12] * a[3] * a[5];
-
-    inv[14] = -a[0]  * a[5] * a[14] +
-              a[0]  * a[6] * a[13] +
-              a[4]  * a[1] * a[14] -
-              a[4]  * a[2] * a[13] -
-              a[12] * a[1] * a[6] +
-              a[12] * a[2] * a[5];
-
-    inv[3] = -a[1] * a[6] * a[11] +
-              a[1] * a[7] * a[10] +
-              a[5] * a[2] * a[11] -
-              a[5] * a[3] * a[10] -
-              a[9] * a[2] * a[7] +
-              a[9] * a[3] * a[6];
-
-    inv[7] = a[0] * a[6] * a[11] -
-             a[0] * a[7] * a[10] -
-             a[4] * a[2] * a[11] +
-             a[4] * a[3] * a[10] +
-             a[8] * a[2] * a[7] -
-             a[8] * a[3] * a[6];
-
-    inv[11] = -a[0] * a[5] * a[11] +
-               a[0] * a[7] * a[9] +
-               a[4] * a[1] * a[11] -
-               a[4] * a[3] * a[9] -
-               a[8] * a[1] * a[7] +
-               a[8] * a[3] * a[5];
-
-    inv[15] = a[0] * a[5] * a[10] -
-              a[0] * a[6] * a[9] -
-              a[4] * a[1] * a[10] +
-              a[4] * a[2] * a[9] +
-              a[8] * a[1] * a[6] -
-              a[8] * a[2] * a[5];
-
-    det = a[0] * inv[0] + a[1] * inv[4] + a[2] * inv[8] + a[3] * inv[12];
-    det = 1.f / det;
-
-    for (int i=0; i<16; i++)
-        ((float*)r.m)[i] = inv[i] * det;
-
-    return r;
+    result.m[0][0] = (a11*b11 - a12*b10 + a13*b09)*invDet;
+    result.m[0][1]= (-a01*b11 + a02*b10 - a03*b09)*invDet;
+    result.m[0][2]= (a31*b05 - a32*b04 + a33*b03)*invDet;
+    result.m[0][3]= (-a21*b05 + a22*b04 - a23*b03)*invDet;
+    result.m[1][0]= (-a10*b11 + a12*b08 - a13*b07)*invDet;
+    result.m[1][1]= (a00*b11 - a02*b08 + a03*b07)*invDet;
+    result.m[1][2]= (-a30*b05 + a32*b02 - a33*b01)*invDet;
+    result.m[1][3]= (a20*b05 - a22*b02 + a23*b01)*invDet;
+    result.m[2][0]= (a10*b10 - a11*b08 + a13*b06)*invDet;
+    result.m[2][1]= (-a00*b10 + a01*b08 - a03*b06)*invDet;
+    result.m[2][2] = (a30*b04 - a31*b02 + a33*b00)*invDet;
+    result.m[2][3] = (-a20*b04 + a21*b02 - a23*b00)*invDet;
+    result.m[3][0] = (-a10*b09 + a11*b07 - a12*b06)*invDet;
+    result.m[3][1] = (a00*b09 - a01*b07 + a02*b06)*invDet;
+    result.m[3][2] = (-a30*b03 + a31*b01 - a32*b00)*invDet;
+    result.m[3][3] = (a20*b03 - a21*b01 + a22*b00)*invDet;
+    return result;
 }
 
 

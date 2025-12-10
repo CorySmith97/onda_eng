@@ -13,6 +13,7 @@ struct BasicPipeline {
 typedef struct InternalState {
     Arena *frame_arena;
     Camera *cam;
+    Camera2d *cam2d;
 } InternalState;
 
 /* STATIC VARS */
@@ -40,6 +41,9 @@ void engineInit() {
 /* UTIL FUNCTIONS */
 
 
+void updateCamera2d(Camera2d *cam) {
+    _is.cam2d = cam;
+}
 void update_camera(Camera *cam) {
     _is.cam = cam;
 }
@@ -155,32 +159,7 @@ Texture *loadSpritesheet(const char *path) {
 }
 
 /* CAMERA */
-
-// THIS DOES NOT WORK
-Vec2 mouseToWorldPosition(Camera cam, Vec2 mouse) {
-    float screen_w = sapp_widthf();
-    float screen_h = sapp_heightf();
-
-    // how much of the world we see
-    float half_w = screen_w * 0.5f * cam.zoom_factor;
-    float half_h = screen_h * 0.5f * cam.zoom_factor;
-
-    // convert mouse from pixel coords → normalized 0..1
-    float nx = mouse.x / screen_w;
-    float ny = mouse.y / screen_h;
-
-    // convert to NDC (clip space): -1 .. +1
-    float ndc_x = nx * 2.0f - 1.0f;
-    float ndc_y = 1.0f - ny * 2.0f; // flip because screen Y grows downward
-
-    // convert NDC -> world
-    float world_x = cam.pos.x + ndc_x * half_w;
-    float world_y = cam.pos.y + ndc_y * half_h;
-
-    return (Vec2){ world_x, world_y };
-}
-
-Mat4 projection(Camera *cam) {
+Mat4 projection(Camera2d *cam) {
     f32 halfWidth = sapp_widthf() / 2.0 * cam->zoom_factor;
     f32 halfHeight = sapp_heightf() / 2.0 * cam->zoom_factor;
     
@@ -198,6 +177,20 @@ Mat4 projection(Camera *cam) {
 
 Mat4 view(Camera *cam) {
     return Mat4Trans(cam->pos.x, cam->pos.y, cam->pos.z);
+}
+
+Mat4 compute_mvp2d(Camera2d *cam) {
+     Mat4 proj = Mat4Ortho(
+        0.0f,
+        sapp_widthf(),
+        0.0f,
+        sapp_heightf(),
+        -1.0f,
+        1.0f
+    );
+    Mat4 view_mat = getCamera2dMatrix(*cam);
+    Mat4 model = Mat4Identity();
+    return Mat4Mul(view_mat, model);
 }
 
 Mat4 compute_mvp(Camera *cam) {
@@ -282,8 +275,6 @@ void drawSpriteEx( Texture *s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, Color c
 
 //void draw_sprite_ex(Texture s, Vec2 pos, Vec2 src, Vec2 size, f32 scale, f32 rotation, Color color);
 
-void update_camera(Camera *cam);
-
 void begin_drawing() {
     sg_begin_pass(&(sg_pass){
         .action = {
@@ -307,7 +298,7 @@ void end_drawing(){
         f32 tWidth = t->width;
         f32 tHeight = t->height;
         vs_params_t vs_params = {
-            .mvp = Mat4Mul(compute_mvp(_is.cam), Mat4Identity()),
+            .mvp = Mat4Mul(compute_mvp2d(_is.cam2d), Mat4Identity()),
             .atlas_size = {tWidth, tHeight},
         };
         if (t->sprites->len > 0) {
@@ -329,4 +320,24 @@ void end_drawing(){
         Texture *t = hashmap_get(textures, keys[i]);
         t->sprites->len = 0;
     }
+}
+
+Mat4 getCamera2dMatrix(Camera2d cam) {
+    Mat4 m = Mat4Identity();
+
+    Mat4 m_origin = Mat4Trans(-cam.target.x, -cam.target.y, 0.0f);
+    Mat4 m_rotation = Mat4RotZ(cam.rotation);
+    Mat4 m_scale = Mat4Scale(cam.zoom_factor, cam.zoom_factor, 1.0f);
+    Mat4 m_translation = Mat4Trans(cam.offset.x, cam.offset.y, 0.0f);
+    return Mat4Mul(Mat4Mul(m_origin, Mat4Mul(m_scale, m_rotation)), m_translation);
+}
+
+Vec2 screenToWorldSpace2d(Camera2d cam, Vec2 point) {
+
+    point.y = sapp_heightf() - point.y;
+    Mat4 inverse = Mat4Inv(getCamera2dMatrix(cam));
+
+    Vec3 transform = Vec3Transform((Vec3){point.x, point.y, 0}, inverse);
+
+    return (Vec2){ transform.x, transform.y };
 }

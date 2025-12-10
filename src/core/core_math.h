@@ -37,6 +37,7 @@ Mat4 Mat4Mul(Mat4 a, Mat4 b);
 Mat4 Mat4Inv(Mat4 a);
 Mat4 Mat4Mul_inv(Mat4 a, Mat4 b);
 Mat4 Mat4Inv_inv(Mat4 a, Mat4 b);
+Mat4 Mat4Trans(f32 x, f32 y, f32 z);
 Mat4 Mat4Transpose(Mat4 a);
 Mat4 Mat4Transpose_inv(Mat4 a);
 Mat4 Mat4Look_at(Vec3 eye, Vec3 at, Vec3 up);

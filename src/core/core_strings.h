@@ -7,7 +7,7 @@ struct String8 {
     u64 len;
 };
 
-#define Str(str) (String8){.data = (str), .len = sizeof((str))-1}
+#define Str(str) (String8){.data = ((u8*)str), .len = sizeof((str))-1}
 
 bool String8Compare(String8 s1, String8 s2);
 
